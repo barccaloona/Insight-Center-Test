@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insight Center for Cognitive Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal:    { DEFAULT: '#24594E', dark: '#1a4038', light: '#2d6e60' },
+            mint:    { DEFAULT: '#3EA882', light: '#8ED3AE', pale: '#d4f0e4', mist: '#eef8f3' },
+            sky:     { DEFAULT: '#89B8CC', pale: '#daeef7', mist: '#f0f8fc' },
+            offwhite:'#F7F6F2',
+            ink:     '#1c2e2a',
+          },
+          fontFamily: {
+            serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+            sans:  ['Outfit', 'sans-serif'],
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --teal:      #24594E;
+      --teal-dark: #1a4038;
+      --mint:      #3EA882;
+      --mint-light:#8ED3AE;
+      --sky:       #89B8CC;
+      --offwhite:  #F7F6F2;
+      --ink:       #1c2e2a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--offwhite);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── SVG Grain Filter ───────────────────── */
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ─── Nav ───────────────────────────────── */
+    #nav {
+      background: rgba(247,246,242,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(36,89,78,0.08);
+    }
+
+    .nav-link {
+      color: var(--teal);
+      font-weight: 500;
+      font-size: 0.875rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
+    }
+    .nav-link:hover { opacity: 1; }
+    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
+
+    .btn-nav {
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.25rem;
+      border-radius: 100px;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
+    .btn-nav:active { transform: translateY(0); }
+    .btn-nav:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+    /* ─── Buttons ───────────────────────────── */
+    .btn-primary {
+      background: var(--teal);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      letter-spacing: 0.02em;
+      padding: 0.875rem 2rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s ease, transform 0.15s ease;
+      box-shadow: 0 4px 14px rgba(36,89,78,0.22), 0 1px 3px rgba(36,89,78,0.12);
+    }
+    .btn-primary:hover  { background: var(--mint); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(62,168,130,0.28), 0 2px 6px rgba(36,89,78,0.1); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 8px; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--teal);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      letter-spacing: 0.02em;
+      padding: 0.875rem 2rem;
+      border-radius: 6px;
+      border: 1.5px solid rgba(36,89,78,0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+    }
+    .btn-ghost:hover  { border-color: var(--teal); background: rgba(36,89,78,0.05); transform: translateY(-2px); }
+    .btn-ghost:active { transform: translateY(0); }
+    .btn-ghost:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 8px; }
+
+    /* ─── Hero ──────────────────────────────── */
+    #hero {
+      background: var(--offwhite);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 90% 10%, rgba(142,211,174,0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 50% at 105% 70%, rgba(137,184,204,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at -10% 80%, rgba(62,168,130,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mint);
+    }
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 1.5rem;
+      height: 1.5px;
+      background: var(--mint);
+    }
+
+    h1.display {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: var(--teal);
+    }
+
+    /* ─── Abstract orb / decorative graphic ─── */
+    .hero-graphic {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 480px;
+    }
+
+    /* ─── Section shared ────────────────────── */
+    .section-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mint);
+    }
+
+    h2.section-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--teal);
+    }
+
+    /* ─── Services ──────────────────────────── */
+    #services { background: #fff; }
+
+    .service-card {
+      background: #fff;
+      border: 1px solid rgba(36,89,78,0.08);
+      border-radius: 12px;
+      padding: 2.25rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow:
+        0 2px 8px rgba(36,89,78,0.06),
+        0 1px 2px rgba(36,89,78,0.04);
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 12px 12px 0 0;
+    }
+    .service-card.s1::before { background: var(--teal); }
+    .service-card.s2::before { background: var(--mint); }
+    .service-card.s3::before { background: var(--sky); }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 12px 32px rgba(36,89,78,0.12),
+        0 3px 8px rgba(36,89,78,0.07);
+    }
+    .service-card:focus-within { outline: 2px solid var(--mint); outline-offset: 2px; border-radius: 12px; }
+
+    .service-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .service-card h3 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.375rem;
+      color: var(--teal);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+    }
+
+    .service-card p {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: #4a6960;
+    }
+
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--mint);
+      letter-spacing: 0.02em;
+      margin-top: 1.25rem;
+      transition: gap 0.2s ease, opacity 0.2s ease;
+    }
+    .service-link:hover { gap: 0.625rem; }
+    .service-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
+
+    /* ─── Blog ──────────────────────────────── */
+    #blog { background: var(--teal); position: relative; overflow: hidden; }
+
+    .blog-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      pointer-events: none;
+    }
+
+    h2.section-title-light {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .blog-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .blog-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .blog-card-inner { padding: 1.75rem 1.75rem 1.5rem; }
+
+    .blog-tag {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--sky);
+      padding: 0.25rem 0.625rem;
+      border-radius: 100px;
+    }
+
+    .blog-card h3 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.25rem;
+      color: var(--teal);
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      margin: 0.75rem 0 0.625rem;
+    }
+
+    .blog-card p {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: #5a7570;
+    }
+
+    .blog-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.75rem;
+      border-top: 1px solid rgba(36,89,78,0.07);
+    }
+
+    .blog-date { font-size: 0.8125rem; color: #8aa8a2; font-weight: 400; }
+
+    .blog-read-more {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--mint);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: gap 0.2s ease;
+    }
+    .blog-read-more:hover { gap: 0.55rem; }
+    .blog-read-more:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
+
+    /* ─── Contact ───────────────────────────── */
+    #contact { background: var(--offwhite); }
+
+    .contact-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 0.9375rem;
+      color: #4a6960;
+      line-height: 1.6;
+    }
+    .contact-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      background: rgba(62,168,130,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid rgba(36,89,78,0.15);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9375rem;
+      color: var(--ink);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: #aabdb8; }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 3px rgba(62,168,130,0.15);
+    }
+    .form-textarea { resize: vertical; min-height: 130px; }
+
+    .btn-submit {
+      background: var(--teal);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      letter-spacing: 0.02em;
+      padding: 0.875rem 2rem;
+      border-radius: 6px;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+      box-shadow: 0 4px 14px rgba(36,89,78,0.2);
+    }
+    .btn-submit:hover  { background: var(--mint); transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 8px; }
+
+    /* ─── Footer ────────────────────────────── */
+    #footer { background: var(--teal-dark, #1a4038); }
+
+    .footer-link {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+      transition: color 0.2s ease;
+    }
+    .footer-link:hover { color: rgba(255,255,255,0.9); }
+    .footer-link:focus-visible { outline: 2px solid var(--mint-light, #8ED3AE); outline-offset: 3px; border-radius: 2px; }
+
+    /* ─── Scroll reveal ─────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-3 group" aria-label="Insight Center Home">
+      <div style="width:38px;height:44px;flex-shrink:0;">
+        <!-- Inline logo icon SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="38" height="44">
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE"/>
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+          <circle cx="52" cy="46" r="26" fill="white"/>
+          <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
+          <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
+          <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.0625rem;letter-spacing:-0.01em;color:#24594E;line-height:1.1;">Insight Center</div>
+        <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#3EA882;line-height:1;">For Cognitive Development</div>
+      </div>
+    </a>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-7">
+      <a href="#about"    class="nav-link">About</a>
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#blog"     class="nav-link">Blog</a>
+      <a href="#contact"  class="btn-nav">Contact</a>
+    </div>
+
+    <!-- Mobile menu button -->
+    <button class="md:hidden p-2 rounded-lg hover:bg-teal/5 transition-colors" aria-label="Open menu" id="menuBtn">
+      <svg width="22" height="16" viewBox="0 0 22 16" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round">
+        <line x1="0" y1="2"  x2="22" y2="2"/>
+        <line x1="0" y1="8"  x2="22" y2="8"/>
+        <line x1="0" y1="14" x2="22" y2="14"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobileMenu" class="hidden md:hidden px-6 pb-5 border-t border-teal/10 bg-offwhite/95 backdrop-blur-md">
+    <div class="flex flex-col gap-1 pt-4">
+      <a href="#about"    class="nav-link py-2">About</a>
+      <a href="#services" class="nav-link py-2">Services</a>
+      <a href="#blog"     class="nav-link py-2">Blog</a>
+      <a href="#contact"  class="btn-nav text-center mt-2">Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28 grain" style="min-height:90vh;display:flex;align-items:center;">
+  <div class="hero-gradient"></div>
+
+  <div class="max-w-6xl mx-auto px-6 w-full relative z-10">
+    <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- Left: Text -->
+      <div>
+        <div class="eyebrow mb-5 reveal">Evidence-Based Cognitive Development</div>
+
+        <h1 class="display reveal reveal-delay-1">
+          Developing the<br/>
+          <em style="font-style:italic;color:#3EA882;">inner capacities</em><br/>
+          that shape the mind.
+        </h1>
+
+        <p class="mt-6 text-base leading-7 text-[#4a6960] max-w-lg reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;">
+          The Insight Center for Cognitive Development exists to cultivate critical thinking, sound judgment, and responsible decision-making — the foundational capacities that underpin lifelong learning and human flourishing.
+        </p>
+
+        <div class="flex flex-wrap gap-4 mt-9 reveal reveal-delay-3">
+          <a href="#services" class="btn-primary">
+            Explore Our Work
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+          <a href="#about" class="btn-ghost">Learn More</a>
+        </div>
+
+        <!-- Stats row -->
+        <div class="flex gap-8 mt-12 reveal reveal-delay-4">
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">20+</div>
+            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Years of Practice</div>
+          </div>
+          <div style="width:1px;background:rgba(36,89,78,0.12);"></div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">800+</div>
+            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Clients Supported</div>
+          </div>
+          <div style="width:1px;background:rgba(36,89,78,0.12);"></div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">3</div>
+            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Core Programs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Abstract decorative graphic -->
+      <div class="flex justify-center items-center reveal reveal-delay-2">
+        <div class="hero-graphic">
+          <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+            <!-- Outermost ring — light mint, very faint -->
+            <circle cx="240" cy="240" r="220" fill="none" stroke="#8ED3AE" stroke-width="1" opacity="0.35"/>
+            <!-- Large filled circle ring — mint pale bg -->
+            <circle cx="240" cy="240" r="200" fill="rgba(142,211,174,0.08)" stroke="#8ED3AE" stroke-width="1.5" opacity="0.5"/>
+            <!-- Mid ring -->
+            <circle cx="240" cy="240" r="158" fill="rgba(62,168,130,0.07)" stroke="#3EA882" stroke-width="2" opacity="0.4"/>
+            <!-- Inner ring -->
+            <circle cx="240" cy="240" r="112" fill="rgba(36,89,78,0.07)" stroke="#24594E" stroke-width="2.5" opacity="0.35"/>
+            <!-- Core -->
+            <circle cx="240" cy="240" r="70" fill="rgba(36,89,78,0.08)"/>
+
+            <!-- Speech-bubble / logo mark reused as large decorative element -->
+            <g transform="translate(130, 120) scale(2.08)" opacity="0.9">
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE" opacity="0.7"/>
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882" opacity="0.85"/>
+              <circle cx="52" cy="46" r="26" fill="rgba(247,246,242,0.95)"/>
+              <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
+              <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
+              <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
+            </g>
+
+            <!-- Floating accent dots -->
+            <circle cx="72"  cy="148" r="5"  fill="#8ED3AE" opacity="0.6"/>
+            <circle cx="50"  cy="300" r="3"  fill="#89B8CC" opacity="0.5"/>
+            <circle cx="420" cy="160" r="4"  fill="#3EA882" opacity="0.5"/>
+            <circle cx="432" cy="350" r="6"  fill="#8ED3AE" opacity="0.45"/>
+            <circle cx="180" cy="56"  r="3.5" fill="#89B8CC" opacity="0.4"/>
+            <circle cx="360" cy="430" r="4"  fill="#3EA882" opacity="0.35"/>
+
+            <!-- Decorative arc segment -->
+            <path d="M 60 240 A 180 180 0 0 1 240 60" fill="none" stroke="#8ED3AE" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.4"/>
+            <path d="M 420 240 A 180 180 0 0 1 240 420" fill="none" stroke="#89B8CC" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.35"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom fade -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,#F7F6F2);pointer-events:none;"></div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ABOUT STRIP
+════════════════════════════════════════════ -->
+<section id="about" style="background:#fff;padding:5rem 0;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div class="reveal">
+        <div class="section-label mb-4">Our Foundation</div>
+        <h2 class="section-title">Rooted in the science of how minds grow.</h2>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
+          Founded on the landmark work of Lonergan and Feuerstein, the Insight Center bridges theory and practice in the service of human development. We believe that cognitive capacity is not fixed — it is modifiable, trainable, and expandable at every stage of life.
+        </p>
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-top:1rem;">
+          Our work is grounded in the conviction that insight — genuine, personal, and transformative — is the engine of lasting change.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SERVICES
+════════════════════════════════════════════ -->
+<section id="services" class="py-24" style="background:#F7F6F2;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="text-center mb-14 reveal">
+      <div class="section-label mb-3">What We Offer</div>
+      <h2 class="section-title">Three paths to transformation.</h2>
+      <p class="mt-4 text-base leading-7 max-w-xl mx-auto" style="font-size:1rem;color:#5a7570;">
+        Each of our programs is designed to develop the cognitive and emotional capacities that enable people to think more clearly and live more fully.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-7">
+
+      <!-- Card 1 — Cognitive Therapy -->
+      <div class="service-card s1 reveal reveal-delay-1">
+        <div class="service-icon" style="background:rgba(36,89,78,0.1);width:3.25rem;height:3.25rem;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="5"/>
+            <circle cx="12" cy="12" r="1.5" fill="#24594E" stroke="none"/>
+          </svg>
+        </div>
+        <h3>Cognitive Therapy</h3>
+        <p>Individual and group therapy grounded in cognitive-mediational principles. We work at the level of thinking itself — helping clients develop the awareness and tools to reshape their own cognitive patterns.</p>
+        <a href="#contact" class="service-link">
+          Learn more
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Card 2 — Therapist Training -->
+      <div class="service-card s2 reveal reveal-delay-2">
+        <div class="service-icon" style="background:rgba(62,168,130,0.12);width:3.25rem;height:3.25rem;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3EA882" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9"  cy="7"  r="3"/>
+            <circle cx="15" cy="7"  r="3"/>
+            <path d="M3 21v-2a6 6 0 0 1 6-6h6a6 6 0 0 1 6 6v2"/>
+          </svg>
+        </div>
+        <h3>Therapist Training</h3>
+        <p>Structured professional development for therapists and educators who want to integrate cognitive mediation into their practice. Training is experiential, theoretically grounded, and practically oriented.</p>
+        <a href="#contact" class="service-link" style="color:#3EA882;">
+          Learn more
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Card 3 — Consulting -->
+      <div class="service-card s3 reveal reveal-delay-3">
+        <div class="service-icon" style="background:rgba(137,184,204,0.15);width:3.25rem;height:3.25rem;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <path d="M17.5 14v7M14 17.5h7"/>
+          </svg>
+        </div>
+        <h3>Consulting</h3>
+        <p>Organizational and institutional consulting for schools, healthcare settings, and professional organizations seeking to build cultures of reflective practice and cognitive development at a systemic level.</p>
+        <a href="#contact" class="service-link" style="color:#89B8CC;">
+          Learn more
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     BLOG
+════════════════════════════════════════════ -->
+<section id="blog" class="py-24 relative">
+  <!-- Decorative background circles -->
+  <div class="blog-bg-circle" style="width:400px;height:400px;top:-100px;right:-80px;"></div>
+  <div class="blog-bg-circle" style="width:250px;height:250px;bottom:-60px;left:-40px;"></div>
+
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+      <div class="reveal">
+        <div class="section-label mb-3" style="color:#8ED3AE;">Recent Insights</div>
+        <h2 class="section-title-light">Ideas worth thinking about.</h2>
+      </div>
+      <a href="#" class="reveal reveal-delay-1" style="display:inline-flex;align-items:center;gap:0.5rem;color:#fff;border:1.5px solid rgba(255,255,255,0.35);padding:0.6rem 1.25rem;border-radius:6px;font-size:0.875rem;font-weight:600;letter-spacing:0.03em;width:fit-content;transition:background 0.2s ease,border-color 0.2s ease,transform 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.35)'">
+        View all posts
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <!-- Post 1 -->
+      <article class="blog-card reveal reveal-delay-1">
+        <div class="blog-card-inner">
+          <span class="blog-tag">Cognitive Therapy</span>
+          <h3>What does it mean to truly understand something?</h3>
+          <p>Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience — and how therapists can support that shift.</p>
+        </div>
+        <div class="blog-card-footer">
+          <span class="blog-date">February 18, 2026</span>
+          <a href="#" class="blog-read-more">
+            Read more
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Post 2 -->
+      <article class="blog-card reveal reveal-delay-2">
+        <div class="blog-card-inner">
+          <span class="blog-tag" style="background:#3EA882;">Therapist Training</span>
+          <h3>The mediating practitioner: a new model for therapeutic presence</h3>
+          <p>Drawing on Feuerstein's mediated learning experience, we explore how therapists can position themselves as cognitive mediators — bridging stimulus and response with intentional care.</p>
+        </div>
+        <div class="blog-card-footer">
+          <span class="blog-date">January 30, 2026</span>
+          <a href="#" class="blog-read-more">
+            Read more
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Post 3 -->
+      <article class="blog-card reveal reveal-delay-3">
+        <div class="blog-card-inner">
+          <span class="blog-tag" style="background:#24594E;">Research</span>
+          <h3>Cognitive modifiability across the lifespan: what the evidence shows</h3>
+          <p>A survey of current research on structural cognitive modifiability — the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.</p>
+        </div>
+        <div class="blog-card-footer">
+          <span class="blog-date">January 9, 2026</span>
+          <a href="#" class="blog-read-more">
+            Read more
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     CONTACT
+════════════════════════════════════════════ -->
+<section id="contact" class="py-24" style="background:var(--offwhite,#F7F6F2);">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="text-center mb-14 reveal">
+      <div class="section-label mb-3">Get in Touch</div>
+      <h2 class="section-title">We'd love to hear from you.</h2>
+      <p class="mt-4 max-w-lg mx-auto" style="font-size:1rem;line-height:1.75;color:#5a7570;">
+        Whether you're interested in therapy, training, or consulting, we welcome every inquiry. Reach out and a member of our team will respond within two business days.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-16 items-start max-w-4xl mx-auto">
+
+      <!-- Left: Contact info -->
+      <div class="reveal">
+        <blockquote style="border-left:3px solid #3EA882;padding-left:1.25rem;margin-bottom:2.5rem;">
+          <p style="font-family:'DM Serif Display',serif;font-size:1.25rem;font-style:italic;color:#24594E;line-height:1.55;">"The goal of education is not to fill a bucket but to light a fire — and the same is true of all genuine cognitive development."</p>
+        </blockquote>
+
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3EA882" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-weight:600;color:#24594E;font-size:0.875rem;">Address</div>
+              <div>123 Cognitive Lane, Suite 400<br/>New York, NY 10001</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3EA882" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-weight:600;color:#24594E;font-size:0.875rem;">Email</div>
+              <div>info@insightcenter.org</div>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3EA882" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-weight:600;color:#24594E;font-size:0.875rem;">Phone</div>
+              <div>(212) 555-0147</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="reveal reveal-delay-1">
+        <form onsubmit="return false;" style="background:#fff;padding:2rem;border-radius:14px;border:1px solid rgba(36,89,78,0.08);box-shadow:0 4px 24px rgba(36,89,78,0.07);">
+          <div class="form-group">
+            <label class="form-label" for="name">Name</label>
+            <input class="form-input" type="text" id="name" name="name" placeholder="Your full name" autocomplete="name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="subject">Interested In</label>
+            <select class="form-input" id="subject" name="subject" style="appearance:none;cursor:pointer;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2324594E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 1rem center;">
+              <option value="" disabled selected>Select a service</option>
+              <option value="therapy">Cognitive Therapy</option>
+              <option value="training">Therapist Training</option>
+              <option value="consulting">Consulting</option>
+              <option value="other">General Inquiry</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" name="message" placeholder="Tell us a little about what you're looking for…"></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer id="footer" class="py-12" style="background:#1a4038;">
+  <div class="max-w-6xl mx-auto px-6">
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:2.5rem;">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+
+        <!-- Logo + tagline -->
+        <div class="flex items-center gap-3">
+          <div style="width:32px;height:37px;opacity:0.9;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="32" height="37">
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE" opacity="0.7"/>
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+              <circle cx="52" cy="46" r="26" fill="rgba(255,255,255,0.12)"/>
+              <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC" opacity="0.8"/>
+              <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="41" cy="46" r="7.5" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:0.9375rem;color:rgba(255,255,255,0.85);">Insight Center</div>
+            <div style="font-size:0.5625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8ED3AE;">For Cognitive Development</div>
+          </div>
+        </div>
+
+        <!-- Nav links -->
+        <nav class="flex flex-wrap gap-6">
+          <a href="#about"    class="footer-link">About</a>
+          <a href="#services" class="footer-link">Services</a>
+          <a href="#blog"     class="footer-link">Blog</a>
+          <a href="#contact"  class="footer-link">Contact</a>
+        </nav>
+
+        <!-- Copyright -->
+        <div style="font-size:0.8125rem;color:rgba(255,255,255,0.35);">
+          &copy; 2026 Insight Center for Cognitive Development
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════ -->
+<script>
+  // Mobile menu toggle
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+  // Close mobile menu on link click
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+  });
+
+  // Scroll reveal — trigger immediately for anything already in viewport on load
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+  // Immediately check if already in viewport (e.g. on first paint / screenshot)
+  revealEls.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('visible');
+    } else {
+      observer.observe(el);
+    }
+  });
+
+  // Nav background on scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      nav.style.boxShadow = '0 2px 16px rgba(36,89,78,0.08)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  }, { passive: true });
+</script>
+</body>
+</html>

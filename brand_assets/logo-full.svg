@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120">
+  <!-- Icon mark -->
+  <g transform="translate(0, 4) scale(0.93)">
+    <!-- Back/shadow bubble layer -->
+    <path
+      d="M14 64 A42 42 0 1 1 28 80 L10 112 Z"
+      transform="translate(6,-5)"
+      fill="#8ED3AE"
+    />
+    <!-- Main bubble -->
+    <path
+      d="M14 64 A42 42 0 1 1 28 80 L10 112 Z"
+      fill="#3EA882"
+    />
+    <!-- White separator ring -->
+    <circle cx="52" cy="46" r="26" fill="white"/>
+    <!-- Eye right half (light blue) -->
+    <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
+    <!-- Eye left half (dark teal) -->
+    <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
+    <!-- Pupil -->
+    <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
+  </g>
+
+  <!-- Wordmark text -->
+  <text
+    x="116"
+    y="62"
+    font-family="'Nunito', 'Poppins', 'Montserrat', sans-serif"
+    font-weight="800"
+    font-size="42"
+    letter-spacing="-0.5"
+    fill="#24594E"
+  >INSIGHT CENTER</text>
+  <text
+    x="120"
+    y="84"
+    font-family="'Nunito', 'Poppins', 'Montserrat', sans-serif"
+    font-weight="700"
+    font-size="14"
+    letter-spacing="3"
+    fill="#3EA882"
+  >FOR COGNITIVE DEVELOPMENT</text>
+</svg>

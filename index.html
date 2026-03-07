@@ -510,99 +510,63 @@
 <!-- ═══════════════════════════════════════════
      HERO
 ════════════════════════════════════════════ -->
-<section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28 grain" style="min-height:90vh;display:flex;align-items:center;">
-  <div class="hero-gradient"></div>
+<section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28" style="min-height:90vh;display:flex;align-items:center;background-image:url('brand_assets/IMG_0407.png');background-size:cover;background-position:center top;">
+  <!-- Dark teal gradient overlay -->
+  <div style="position:absolute;inset:0;background:linear-gradient(105deg, rgba(15,38,34,0.93) 0%, rgba(18,46,42,0.85) 45%, rgba(24,58,52,0.6) 100%);pointer-events:none;"></div>
+  <!-- Subtle color wash on image -->
+  <div style="position:absolute;inset:0;background:rgba(36,89,78,0.15);mix-blend-mode:multiply;pointer-events:none;"></div>
 
   <div class="max-w-6xl mx-auto px-6 w-full relative z-10">
-    <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+    <div class="max-w-2xl">
 
-      <!-- Left: Text -->
-      <div>
-        <div class="eyebrow mb-5 reveal">Evidence-Based Cognitive Development</div>
-
-        <h1 class="display reveal reveal-delay-1">
-          Developing the<br/>
-          <em style="font-style:italic;color:#3EA882;">inner capacities</em><br/>
-          that shape the mind.
-        </h1>
-
-        <p class="mt-6 text-base leading-7 text-[#4a6960] max-w-lg reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;">
-          The Insight Center for Cognitive Development exists to cultivate critical thinking, sound judgment, and responsible decision-making — the foundational capacities that underpin lifelong learning and human flourishing.
-        </p>
-
-        <div class="flex flex-wrap gap-4 mt-9 reveal reveal-delay-3">
-          <a href="#services" class="btn-primary">
-            Explore Our Work
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8h10M9 4l4 4-4 4"/>
-            </svg>
-          </a>
-          <a href="#about" class="btn-ghost">Learn More</a>
-        </div>
-
-        <!-- Stats row -->
-        <div class="flex gap-8 mt-12 reveal reveal-delay-4">
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">20+</div>
-            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Years of Practice</div>
-          </div>
-          <div style="width:1px;background:rgba(36,89,78,0.12);"></div>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">800+</div>
-            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Clients Supported</div>
-          </div>
-          <div style="width:1px;background:rgba(36,89,78,0.12);"></div>
-          <div>
-            <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#24594E;line-height:1;">3</div>
-            <div style="font-size:0.8125rem;font-weight:500;color:#7a9e98;margin-top:2px;letter-spacing:0.02em;">Core Programs</div>
-          </div>
-        </div>
+      <div class="eyebrow mb-5 reveal" style="color:#8ED3AE;">
+        <span style="display:inline-block;width:1.5rem;height:1.5px;background:#8ED3AE;margin-right:0.5rem;vertical-align:middle;"></span>
+        Evidence-Based Cognitive Development
       </div>
 
-      <!-- Right: Abstract decorative graphic -->
-      <div class="flex justify-center items-center reveal reveal-delay-2">
-        <div class="hero-graphic">
-          <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-            <!-- Outermost ring — light mint, very faint -->
-            <circle cx="240" cy="240" r="220" fill="none" stroke="#8ED3AE" stroke-width="1" opacity="0.35"/>
-            <!-- Large filled circle ring — mint pale bg -->
-            <circle cx="240" cy="240" r="200" fill="rgba(142,211,174,0.08)" stroke="#8ED3AE" stroke-width="1.5" opacity="0.5"/>
-            <!-- Mid ring -->
-            <circle cx="240" cy="240" r="158" fill="rgba(62,168,130,0.07)" stroke="#3EA882" stroke-width="2" opacity="0.4"/>
-            <!-- Inner ring -->
-            <circle cx="240" cy="240" r="112" fill="rgba(36,89,78,0.07)" stroke="#24594E" stroke-width="2.5" opacity="0.35"/>
-            <!-- Core -->
-            <circle cx="240" cy="240" r="70" fill="rgba(36,89,78,0.08)"/>
+      <h1 class="display reveal reveal-delay-1" style="color:#fff;">
+        Developing the<br/>
+        <em style="font-style:italic;color:#8ED3AE;">inner capacities</em><br/>
+        that shape the mind.
+      </h1>
 
-            <!-- Speech-bubble / logo mark reused as large decorative element -->
-            <g transform="translate(130, 120) scale(2.08)" opacity="0.9">
-              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE" opacity="0.7"/>
-              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882" opacity="0.85"/>
-              <circle cx="52" cy="46" r="26" fill="rgba(247,246,242,0.95)"/>
-              <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
-              <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
-              <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
-            </g>
+      <p class="mt-6 reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;color:rgba(255,255,255,0.78);max-width:36rem;">
+        The Insight Center for Cognitive Development exists to cultivate critical thinking, sound judgment, and responsible decision-making — the foundational capacities that underpin lifelong learning and human flourishing.
+      </p>
 
-            <!-- Floating accent dots -->
-            <circle cx="72"  cy="148" r="5"  fill="#8ED3AE" opacity="0.6"/>
-            <circle cx="50"  cy="300" r="3"  fill="#89B8CC" opacity="0.5"/>
-            <circle cx="420" cy="160" r="4"  fill="#3EA882" opacity="0.5"/>
-            <circle cx="432" cy="350" r="6"  fill="#8ED3AE" opacity="0.45"/>
-            <circle cx="180" cy="56"  r="3.5" fill="#89B8CC" opacity="0.4"/>
-            <circle cx="360" cy="430" r="4"  fill="#3EA882" opacity="0.35"/>
-
-            <!-- Decorative arc segment -->
-            <path d="M 60 240 A 180 180 0 0 1 240 60" fill="none" stroke="#8ED3AE" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.4"/>
-            <path d="M 420 240 A 180 180 0 0 1 240 420" fill="none" stroke="#89B8CC" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.35"/>
+      <div class="flex flex-wrap gap-4 mt-9 reveal reveal-delay-3">
+        <a href="#services" class="btn-primary">
+          Explore Our Work
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 8h10M9 4l4 4-4 4"/>
           </svg>
+        </a>
+        <a href="#about" class="btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.35);" onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.35)'">Learn More</a>
+      </div>
+
+      <!-- Stats row -->
+      <div class="flex gap-8 mt-12 reveal reveal-delay-4">
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">20+</div>
+          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Years of Practice</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">800+</div>
+          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Clients Supported</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">3</div>
+          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Core Programs</div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- Bottom fade -->
-  <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,#F7F6F2);pointer-events:none;"></div>
+  <!-- Bottom fade to about section -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,rgba(15,38,34,0.6));pointer-events:none;"></div>
 </section>
 
 

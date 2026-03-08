@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulting — Insight Center for Cognitive Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal:    { DEFAULT: '#24594E', dark: '#1a4038', light: '#2d6e60' },
+            mint:    { DEFAULT: '#3EA882', light: '#8ED3AE', pale: '#d4f0e4', mist: '#eef8f3' },
+            sky:     { DEFAULT: '#89B8CC', pale: '#daeef7', mist: '#f0f8fc' },
+            offwhite:'#F7F6F2', ink: '#1c2e2a',
+          },
+          fontFamily: { serif: ['"DM Serif Display"', 'Georgia', 'serif'], sans: ['Outfit', 'sans-serif'] },
+        }
+      }
+    };
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root { --teal:#24594E; --teal-dark:#1a4038; --mint:#3EA882; --mint-light:#8ED3AE; --sky:#89B8CC; --sky-pale:#daeef7; --offwhite:#F7F6F2; --ink:#1c2e2a; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--offwhite); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+    #nav { background: rgba(247,246,242,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(36,89,78,0.08); }
+    .nav-link { color: var(--teal); font-weight: 500; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.75; transition: opacity 0.2s ease; }
+    .nav-link:hover, .nav-link.active { opacity: 1; }
+    .btn-nav { background: var(--teal); color: #fff; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 1.25rem; border-radius: 100px; transition: background 0.2s ease, transform 0.15s ease; }
+    .btn-nav:hover { background: var(--mint); transform: translateY(-1px); }
+
+    .nav-dropdown-wrap { position: relative; }
+    .nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--teal); font-weight: 500; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.75; transition: opacity 0.2s ease; cursor: pointer; background: none; border: none; padding: 0; font-family: 'Outfit', sans-serif; }
+    .nav-dropdown-trigger:hover, .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
+    .nav-dropdown-chevron { transition: transform 0.2s ease; }
+    .nav-dropdown-wrap:hover .nav-dropdown-chevron, .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
+    .nav-dropdown-panel { position: absolute; top: calc(100% + 10px); left: 50%; width: 230px; background: #fff; border: 1px solid rgba(36,89,78,0.09); border-radius: 12px; box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06); padding: 0.4rem; z-index: 200; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(-6px); transition: opacity 0.18s ease, transform 0.18s ease; }
+    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
+    .nav-dropdown-wrap:hover .nav-dropdown-panel, .nav-dropdown-wrap:focus-within .nav-dropdown-panel { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .nav-dropdown-item { display: block; padding: 0.7rem 0.875rem; border-radius: 8px; text-decoration: none; transition: background 0.15s ease; }
+    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
+    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
+    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
+    .mobile-sub-link { display: block; padding: 0.5rem 0 0.5rem 1rem; font-size: 0.8125rem; font-weight: 500; color: var(--teal); letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65; transition: opacity 0.2s ease; text-decoration: none; }
+    .mobile-sub-link:hover { opacity: 1; }
+
+    .eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #b8d9e8; }
+    .section-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sky); }
+    h2.section-title { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(1.875rem, 3vw, 2.625rem); line-height: 1.15; letter-spacing: -0.02em; color: var(--teal); }
+
+    .process-step { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .process-num { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #89B8CC; color: #fff; font-family: 'DM Serif Display', serif; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.125rem; }
+
+    .who-card { background: #fff; border: 1px solid rgba(36,89,78,0.08); border-radius: 12px; padding: 1.875rem 1.75rem; box-shadow: 0 2px 10px rgba(36,89,78,0.06); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .who-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(36,89,78,0.1); }
+
+    .engagement-card { background: #fff; border-radius: 14px; padding: 2.25rem; border: 1px solid rgba(36,89,78,0.08); box-shadow: 0 2px 12px rgba(36,89,78,0.06); position: relative; overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .engagement-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(36,89,78,0.1); }
+    .engagement-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 14px 14px 0 0; background: #89B8CC; }
+
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
+    .footer-link:hover { color: rgba(255,255,255,0.9); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-3" aria-label="Insight Center Home">
+      <div style="width:38px;height:44px;flex-shrink:0;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="38" height="44">
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE"/>
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+          <circle cx="52" cy="46" r="26" fill="white"/>
+          <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
+          <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
+          <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.0625rem;letter-spacing:-0.01em;color:#24594E;line-height:1.1;">Insight Center</div>
+        <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#3EA882;line-height:1;">For Cognitive Development</div>
+      </div>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7">
+      <a href="./about.html" class="nav-link">About</a>
+      <div class="nav-dropdown-wrap">
+        <button class="nav-dropdown-trigger" aria-haspopup="true" style="opacity:1;">
+          Services
+          <svg class="nav-dropdown-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div class="nav-dropdown-panel" role="menu">
+          <a href="./cognitive-therapy.html" class="nav-dropdown-item">
+            <div class="nav-dropdown-item-name">Cognitive Therapy</div>
+            <div class="nav-dropdown-item-desc">Individual &amp; group therapy</div>
+          </a>
+          <a href="./therapist-training.html" class="nav-dropdown-item">
+            <div class="nav-dropdown-item-name">Therapist Training</div>
+            <div class="nav-dropdown-item-desc">Professional development</div>
+          </a>
+          <a href="./consulting.html" class="nav-dropdown-item" style="background:rgba(36,89,78,0.05);">
+            <div class="nav-dropdown-item-name">Consulting</div>
+            <div class="nav-dropdown-item-desc">Organizational &amp; institutional</div>
+          </a>
+        </div>
+      </div>
+      <a href="./blog.html" class="nav-link">Blog</a>
+      <a href="./index.html#contact" class="btn-nav">Contact</a>
+    </div>
+
+    <button class="md:hidden p-2" aria-label="Open menu" id="menuBtn">
+      <svg width="22" height="16" viewBox="0 0 22 16" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round">
+        <line x1="0" y1="2" x2="22" y2="2"/><line x1="0" y1="8" x2="22" y2="8"/><line x1="0" y1="14" x2="22" y2="14"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="mobileMenu" class="hidden md:hidden px-6 pb-5 border-t border-teal/10 bg-offwhite/95 backdrop-blur-md">
+    <div class="flex flex-col gap-1 pt-4">
+      <a href="./about.html" class="nav-link py-2">About</a>
+      <div>
+        <button class="nav-link py-2 w-full text-left flex items-center justify-between" id="mobileServicesBtn" style="background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;">
+          Services
+          <svg id="mobileServicesChevron" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s ease;flex-shrink:0;"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div id="mobileServicesMenu" class="hidden" style="padding-left:0.75rem;display:flex;flex-direction:column;gap:0;">
+          <a href="./cognitive-therapy.html"  class="mobile-sub-link">Cognitive Therapy</a>
+          <a href="./therapist-training.html" class="mobile-sub-link">Therapist Training</a>
+          <a href="./consulting.html"         class="mobile-sub-link">Consulting</a>
+        </div>
+      </div>
+      <a href="./blog.html" class="nav-link py-2">Blog</a>
+      <a href="./index.html#contact" class="btn-nav text-center mt-2">Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══ HERO ════════════════════════════════════ -->
+<section style="background:var(--teal);position:relative;overflow:hidden;padding:8rem 1.5rem 5rem;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 70% at 80% 20%, rgba(137,184,204,0.22) 0%,transparent 60%),radial-gradient(ellipse 35% 50% at 5% 80%, rgba(62,168,130,0.1) 0%,transparent 55%);pointer-events:none;"></div>
+  <div style="position:absolute;right:-100px;top:-60px;width:420px;height:420px;border:1px solid rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
+  <div style="position:absolute;right:-40px;top:10px;width:280px;height:280px;border:1px solid rgba(255,255,255,0.04);border-radius:50%;pointer-events:none;"></div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <div class="eyebrow mb-5 reveal">
+      <span style="display:inline-block;width:1.5rem;height:1.5px;background:#b8d9e8;margin-right:0.5rem;vertical-align:middle;"></span>
+      Consulting
+    </div>
+    <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(2.5rem,5vw,3.875rem);line-height:1.1;letter-spacing:-0.025em;color:#fff;max-width:680px;" class="reveal reveal-delay-1">
+      Building organizations that<br/><em style="color:#b8d9e8;">think well</em> together.
+    </h1>
+    <p class="reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.85;color:rgba(255,255,255,0.72);max-width:520px;margin-top:1.375rem;">
+      Systemic cognitive development for institutions that want to change not just what their people do, but how they think — together, and over time.
+    </p>
+    <div class="reveal reveal-delay-3" style="margin-top:2.25rem;">
+      <a href="./index.html#contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:#89B8CC;color:#fff;font-weight:600;font-size:0.9375rem;padding:0.875rem 1.875rem;border-radius:6px;text-decoration:none;box-shadow:0 4px 16px rgba(137,184,204,0.35);transition:transform 0.15s ease,box-shadow 0.2s ease,background 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.background='#6aa3bb'" onmouseout="this.style.transform='';this.style.background='#89B8CC'">
+        Inquire About Consulting
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ OVERVIEW ════════════════════════════════ -->
+<section style="background:#fff;padding:5.5rem 1.5rem;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <div class="reveal">
+        <div class="section-label mb-4">What We Offer</div>
+        <h2 class="section-title">Culture change that actually changes how people think.</h2>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-bottom:1.125rem;">
+          Most organizational training delivers content — frameworks, skills, protocols. Our consulting engagements go deeper. We work at the level of cognition itself: how your people perceive problems, make meaning, and collaborate across difference.
+        </p>
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-bottom:1.125rem;">
+          Drawing on Feuerstein's theory of Structural Cognitive Modifiability and Lonergan's philosophy of intentional consciousness, we design engagements that shift organizational culture from the inside out — through carefully mediated experiences that alter how staff think together, not just what they agree to do together.
+        </p>
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
+          We do not offer off-the-shelf training events. Every engagement is custom-designed with and for your institution, grounded in an honest assessment of where your organization is and where it needs to go.
+        </p>
+        <div style="margin-top:1.75rem;padding:1.25rem 1.5rem;background:rgba(137,184,204,0.08);border-left:3px solid #89B8CC;border-radius:0 8px 8px 0;">
+          <p style="font-family:'DM Serif Display',serif;font-size:1.0625rem;font-style:italic;color:#24594E;line-height:1.6;margin:0;">"Organizations don't change because people learn new information. They change because people learn to think together differently."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ WHO IT'S FOR ════════════════════════════ -->
+<section style="background:var(--offwhite);padding:5.5rem 1.5rem;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14 reveal">
+      <div class="section-label mb-3">Who It's For</div>
+      <h2 class="section-title">For institutions ready to think differently.</h2>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-6">
+
+      <div class="who-card reveal reveal-delay-1">
+        <div style="width:2.75rem;height:2.75rem;background:rgba(137,184,204,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.625rem;line-height:1.25;">Schools &amp; Educational Institutions</h3>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Schools seeking to build genuine learning cultures — where staff and students alike are developing as thinkers, not merely performing tasks or meeting benchmarks.</p>
+      </div>
+
+      <div class="who-card reveal reveal-delay-2">
+        <div style="width:2.75rem;height:2.75rem;background:rgba(137,184,204,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.625rem;line-height:1.25;">Healthcare Organizations</h3>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Clinical teams and healthcare institutions working to improve how practitioners think through complexity, collaborate under pressure, and maintain reflective capacity in demanding environments.</p>
+      </div>
+
+      <div class="who-card reveal reveal-delay-3">
+        <div style="width:2.75rem;height:2.75rem;background:rgba(137,184,204,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.625rem;line-height:1.25;">Professional Associations &amp; Firms</h3>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Professional associations and firms navigating organizational change, leadership development, or the cultivation of a reflective, adaptive culture across a distributed workforce.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ WHAT TO EXPECT ══════════════════════════ -->
+<section style="background:#fff;padding:5.5rem 1.5rem;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <div class="reveal">
+        <div class="section-label mb-4">Our Process</div>
+        <h2 class="section-title">How a consulting engagement unfolds.</h2>
+        <p style="font-size:1rem;line-height:1.75;color:#5a7570;margin-top:1rem;">
+          Every engagement is different, but all follow a common arc: honest assessment, careful design, facilitated experience, and meaningful follow-through.
+        </p>
+      </div>
+      <div class="reveal reveal-delay-1" style="display:flex;flex-direction:column;gap:2rem;">
+
+        <div class="process-step">
+          <div class="process-num">1</div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Discovery &amp; Assessment</div>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We begin by listening — to leadership, staff, and where relevant, clients or students. We seek to understand the real cognitive and cultural dynamics at play, not just the presenting problem. This phase shapes everything that follows.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-num">2</div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Custom Program Design</div>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Drawing on the discovery phase, we co-design an engagement tailored to your institution's needs, culture, and goals. We do not adapt a standard program — we build yours from the ground up, with explicit attention to what will and won't work in your context.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-num">3</div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Facilitated Workshops</div>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We facilitate sessions designed as genuine mediated learning experiences — not presentations or trainings, but carefully orchestrated encounters that shift how participants see and think. Sessions may be with leadership, staff cohorts, or cross-functional groups.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-num">4</div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Evaluation &amp; Follow-Up</div>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Real change takes time. We build in structured evaluation and follow-up — including optional ongoing consultation — to help your institution integrate and sustain what was learned. We are invested in outcomes, not just delivery.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ SAMPLE ENGAGEMENTS ════════════════════════ -->
+<section style="background:var(--offwhite);padding:5.5rem 1.5rem;border-top:1px solid rgba(36,89,78,0.07);">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="section-label mb-3">Sample Engagements</div>
+      <h2 class="section-title">What this looks like in practice.</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+
+      <div class="engagement-card reveal reveal-delay-1">
+        <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#89B8CC;margin-bottom:0.875rem;">Engagement A</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#24594E;margin-bottom:0.875rem;line-height:1.2;">Multi-Session Staff Development</h3>
+        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A semester-long series of facilitated sessions with a school staff — building a shared vocabulary for cognitive development, examining real instructional challenges through a mediated learning lens, and developing internal capacity for ongoing reflective practice.</p>
+        <ul style="font-size:0.875rem;color:#5a7570;line-height:1.8;list-style:none;padding:0;">
+          <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> 6–8 facilitated sessions</li>
+          <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Embedded in existing PD calendar</li>
+          <li style="display:flex;align-items:center;gap:0.5rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Leadership debrief &amp; follow-up plan</li>
+        </ul>
+      </div>
+
+      <div class="engagement-card reveal reveal-delay-2">
+        <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#89B8CC;margin-bottom:0.875rem;">Engagement B</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#24594E;margin-bottom:0.875rem;line-height:1.2;">Executive Team Reflection Retreat</h3>
+        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A 2-day residential retreat for a senior leadership team — creating the conditions for genuine reflective inquiry into the organization's cognitive culture, shared assumptions, and capacity for adaptive change. Grounded in Lonergan's account of authentic subjectivity and collaborative decision-making.</p>
+        <ul style="font-size:0.875rem;color:#5a7570;line-height:1.8;list-style:none;padding:0;">
+          <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> 2-day residential format</li>
+          <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Pre-retreat discovery interviews</li>
+          <li style="display:flex;align-items:center;gap:0.5rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Written synthesis &amp; action framework</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ CTA ══════════════════════════════════════ -->
+<section style="background:var(--teal);padding:5rem 1.5rem;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 80% 50%, rgba(137,184,204,0.2) 0%,transparent 60%);pointer-events:none;"></div>
+  <div class="max-w-6xl mx-auto text-center relative z-10 reveal">
+    <div class="section-label mb-4" style="color:#b8d9e8;">Start a Conversation</div>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(2rem,3.5vw,2.625rem);line-height:1.15;letter-spacing:-0.02em;color:#fff;margin-bottom:1.125rem;">Ready to think well together?</h2>
+    <p style="font-size:1rem;line-height:1.75;color:rgba(255,255,255,0.72);max-width:480px;margin:0 auto 2.5rem;">
+      Reach out to begin a discovery conversation about your organization's needs and whether our approach is the right fit.
+    </p>
+    <a href="./index.html#contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:#89B8CC;color:#fff;font-weight:600;font-size:0.9375rem;padding:0.875rem 2rem;border-radius:6px;text-decoration:none;box-shadow:0 4px 16px rgba(137,184,204,0.35);transition:transform 0.15s ease,background 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.background='#6aa3bb'" onmouseout="this.style.transform='';this.style.background='#89B8CC'">
+      Inquire About Consulting
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    </a>
+  </div>
+</section>
+
+
+<!-- ═══ FOOTER ═══════════════════════════════════ -->
+<footer class="py-12" style="background:#1a4038;">
+  <div class="max-w-6xl mx-auto px-6">
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:2.5rem;">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+        <div class="flex items-center gap-3">
+          <div style="width:32px;height:37px;opacity:0.9;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="32" height="37">
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE" opacity="0.7"/>
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+              <circle cx="52" cy="46" r="26" fill="rgba(255,255,255,0.12)"/>
+              <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC" opacity="0.8"/>
+              <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="41" cy="46" r="7.5" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:0.9375rem;color:rgba(255,255,255,0.85);">Insight Center</div>
+            <div style="font-size:0.5625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8ED3AE;">For Cognitive Development</div>
+          </div>
+        </div>
+        <nav class="flex flex-wrap gap-6">
+          <a href="./about.html"              class="footer-link">About</a>
+          <a href="./cognitive-therapy.html"  class="footer-link">Cognitive Therapy</a>
+          <a href="./therapist-training.html" class="footer-link">Therapist Training</a>
+          <a href="./consulting.html"         class="footer-link">Consulting</a>
+          <a href="./blog.html"               class="footer-link">Blog</a>
+          <a href="./index.html#contact"      class="footer-link">Contact</a>
+        </nav>
+        <div style="font-size:0.8125rem;color:rgba(255,255,255,0.35);">&copy; 2026 Insight Center for Cognitive Development</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+  const mobileServicesBtn  = document.getElementById('mobileServicesBtn');
+  const mobileServicesMenu = document.getElementById('mobileServicesMenu');
+  const mobileServicesChev = document.getElementById('mobileServicesChevron');
+  mobileServicesBtn.addEventListener('click', () => {
+    const open = !mobileServicesMenu.classList.contains('hidden');
+    mobileServicesMenu.classList.toggle('hidden', open);
+    mobileServicesChev.style.transform = open ? '' : 'rotate(180deg)';
+  });
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.style.boxShadow = window.scrollY > 20 ? '0 2px 16px rgba(36,89,78,0.08)' : 'none'; }, { passive: true });
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+  revealEls.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
+    else observer.observe(el);
+  });
+</script>
+</body>
+</html>

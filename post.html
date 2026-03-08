@@ -122,6 +122,53 @@
       color: #24594E; line-height: 1.55;
     }
 
+    /* ─── Nav Dropdown ──────────────────────── */
+    .nav-dropdown-wrap { position: relative; }
+    .nav-dropdown-trigger {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      color: var(--teal); font-weight: 500; font-size: 0.875rem;
+      letter-spacing: 0.03em; text-transform: uppercase;
+      opacity: 0.75; transition: opacity 0.2s ease;
+      cursor: pointer; background: none; border: none; padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+    .nav-dropdown-trigger:hover,
+    .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
+    .nav-dropdown-chevron { transition: transform 0.2s ease; }
+    .nav-dropdown-wrap:hover .nav-dropdown-chevron,
+    .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
+    .nav-dropdown-panel {
+      position: absolute; top: calc(100% + 10px); left: 50%;
+      width: 230px; background: #fff;
+      border: 1px solid rgba(36,89,78,0.09); border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06);
+      padding: 0.4rem; z-index: 200;
+      opacity: 0; pointer-events: none;
+      transform: translateX(-50%) translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
+    .nav-dropdown-wrap:hover .nav-dropdown-panel,
+    .nav-dropdown-wrap:focus-within .nav-dropdown-panel {
+      opacity: 1; pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+    .nav-dropdown-item {
+      display: block; padding: 0.7rem 0.875rem;
+      border-radius: 8px; text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
+    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
+    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
+    .mobile-sub-link {
+      display: block; padding: 0.5rem 0 0.5rem 1rem;
+      font-size: 0.8125rem; font-weight: 500; color: var(--teal);
+      letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65;
+      transition: opacity 0.2s ease; text-decoration: none;
+    }
+    .mobile-sub-link:hover { opacity: 1; }
+
     /* ─── Footer ────────────────────────────── */
     .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
     .footer-link:hover { color: rgba(255,255,255,0.9); }
@@ -154,7 +201,26 @@
 
     <div class="hidden md:flex items-center gap-7">
       <a href="./about.html"          class="nav-link">About</a>
-      <a href="./index.html#services" class="nav-link">Services</a>
+      <div class="nav-dropdown-wrap">
+        <button class="nav-dropdown-trigger" aria-haspopup="true">
+          Services
+          <svg class="nav-dropdown-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div class="nav-dropdown-panel" role="menu">
+          <a href="./cognitive-therapy.html" class="nav-dropdown-item">
+            <div class="nav-dropdown-item-name">Cognitive Therapy</div>
+            <div class="nav-dropdown-item-desc">Individual &amp; group therapy</div>
+          </a>
+          <a href="./therapist-training.html" class="nav-dropdown-item">
+            <div class="nav-dropdown-item-name">Therapist Training</div>
+            <div class="nav-dropdown-item-desc">Professional development</div>
+          </a>
+          <a href="./consulting.html" class="nav-dropdown-item">
+            <div class="nav-dropdown-item-name">Consulting</div>
+            <div class="nav-dropdown-item-desc">Organizational &amp; institutional</div>
+          </a>
+        </div>
+      </div>
       <a href="./blog.html"           class="nav-link active">Blog</a>
       <a href="./index.html#contact"  class="btn-nav">Contact</a>
     </div>
@@ -171,7 +237,17 @@
   <div id="mobileMenu" class="hidden md:hidden px-6 pb-5 border-t border-teal/10 bg-offwhite/95 backdrop-blur-md">
     <div class="flex flex-col gap-1 pt-4">
       <a href="./about.html"          class="nav-link py-2">About</a>
-      <a href="./index.html#services" class="nav-link py-2">Services</a>
+      <div>
+        <button class="nav-link py-2 w-full text-left flex items-center justify-between" id="mobileServicesBtn" style="background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;">
+          Services
+          <svg id="mobileServicesChevron" width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s ease;flex-shrink:0;"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div id="mobileServicesMenu" class="hidden" style="padding-left:0.75rem;display:flex;flex-direction:column;gap:0;">
+          <a href="./cognitive-therapy.html"  class="mobile-sub-link">Cognitive Therapy</a>
+          <a href="./therapist-training.html" class="mobile-sub-link">Therapist Training</a>
+          <a href="./consulting.html"         class="mobile-sub-link">Consulting</a>
+        </div>
+      </div>
       <a href="./blog.html"           class="nav-link py-2">Blog</a>
       <a href="./index.html#contact"  class="btn-nav text-center mt-2">Contact</a>
     </div>
@@ -488,6 +564,15 @@
   const mobileMenu = document.getElementById('mobileMenu');
   menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
   mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+  const mobileServicesBtn  = document.getElementById('mobileServicesBtn');
+  const mobileServicesMenu = document.getElementById('mobileServicesMenu');
+  const mobileServicesChev = document.getElementById('mobileServicesChevron');
+  mobileServicesBtn.addEventListener('click', () => {
+    const open = !mobileServicesMenu.classList.contains('hidden');
+    mobileServicesMenu.classList.toggle('hidden', open);
+    mobileServicesChev.style.transform = open ? '' : 'rotate(180deg)';
+  });
 
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {

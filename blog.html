@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insights — Insight Center for Cognitive Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal:    { DEFAULT: '#24594E', dark: '#1a4038', light: '#2d6e60' },
+            mint:    { DEFAULT: '#3EA882', light: '#8ED3AE', pale: '#d4f0e4', mist: '#eef8f3' },
+            sky:     { DEFAULT: '#89B8CC', pale: '#daeef7', mist: '#f0f8fc' },
+            offwhite:'#F7F6F2',
+            ink:     '#1c2e2a',
+          },
+          fontFamily: {
+            serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+            sans:  ['Outfit', 'sans-serif'],
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --teal:      #24594E;
+      --teal-dark: #1a4038;
+      --mint:      #3EA882;
+      --mint-light:#8ED3AE;
+      --sky:       #89B8CC;
+      --offwhite:  #F7F6F2;
+      --ink:       #1c2e2a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--offwhite);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Nav ───────────────────────────────── */
+    #nav {
+      background: rgba(247,246,242,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(36,89,78,0.08);
+    }
+    .nav-link {
+      color: var(--teal); font-weight: 500; font-size: 0.875rem;
+      letter-spacing: 0.03em; text-transform: uppercase;
+      opacity: 0.75; transition: opacity 0.2s ease;
+    }
+    .nav-link:hover, .nav-link.active { opacity: 1; }
+    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
+    .btn-nav {
+      background: var(--teal); color: #fff; font-size: 0.8125rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 1.25rem;
+      border-radius: 100px; transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
+    .btn-nav:active { transform: translateY(0); }
+    .btn-nav:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+    /* ─── Blog cards ─────────────────────────── */
+    .blog-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(36,89,78,0.08);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 2px 12px rgba(36,89,78,0.07), 0 1px 3px rgba(36,89,78,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+    .blog-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 36px rgba(36,89,78,0.12), 0 3px 8px rgba(36,89,78,0.07);
+    }
+    .blog-card-inner { padding: 1.75rem 1.75rem 1.25rem; flex: 1; }
+    .blog-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.75rem;
+      border-top: 1px solid rgba(36,89,78,0.07);
+    }
+    .blog-tag {
+      display: inline-block; font-size: 0.6875rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #fff;
+      padding: 0.25rem 0.625rem; border-radius: 100px;
+    }
+    .blog-card h3 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.1875rem; color: var(--teal); line-height: 1.3;
+      letter-spacing: -0.01em; margin: 0.75rem 0 0.625rem;
+    }
+    .blog-card p { font-size: 0.875rem; line-height: 1.7; color: #5a7570; }
+    .blog-date { font-size: 0.8125rem; color: #8aa8a2; font-weight: 400; }
+    .blog-read-more {
+      font-size: 0.8125rem; font-weight: 600; color: var(--mint);
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      transition: gap 0.2s ease;
+      text-decoration: none;
+    }
+    .blog-read-more:hover { gap: 0.55rem; }
+
+    /* ─── Filter buttons ─────────────────────── */
+    .filter-btn {
+      font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em;
+      padding: 0.5rem 1.125rem; border-radius: 100px;
+      border: 1.5px solid rgba(36,89,78,0.2);
+      color: #4a6960; background: #fff;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+      cursor: pointer;
+    }
+    .filter-btn:hover   { border-color: var(--teal); color: var(--teal); transform: translateY(-1px); }
+    .filter-btn.active  { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .filter-btn:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+    /* ─── Skeleton loading ───────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(36,89,78,0.07) 25%, rgba(36,89,78,0.12) 50%, rgba(36,89,78,0.07) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ─── Scroll reveal ─────────────────────── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ─── Footer ────────────────────────────── */
+    .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
+    .footer-link:hover { color: rgba(255,255,255,0.9); }
+
+    /* ─── Section label / eyebrow ───────────── */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--mint-light);
+    }
+    .section-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mint); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════ -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+
+    <a href="./index.html" class="flex items-center gap-3 group" aria-label="Insight Center Home">
+      <div style="width:38px;height:44px;flex-shrink:0;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="38" height="44">
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE"/>
+          <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+          <circle cx="52" cy="46" r="26" fill="white"/>
+          <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC"/>
+          <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="#24594E"/>
+          <circle cx="41" cy="46" r="7.5" fill="#0d2b26"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.0625rem;letter-spacing:-0.01em;color:#24594E;line-height:1.1;">Insight Center</div>
+        <div style="font-size:0.625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#3EA882;line-height:1;">For Cognitive Development</div>
+      </div>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7">
+      <a href="./about.html"          class="nav-link">About</a>
+      <a href="./index.html#services" class="nav-link">Services</a>
+      <a href="./blog.html"           class="nav-link active">Blog</a>
+      <a href="./index.html#contact"  class="btn-nav">Contact</a>
+    </div>
+
+    <button class="md:hidden p-2 rounded-lg hover:bg-teal/5 transition-colors" aria-label="Open menu" id="menuBtn">
+      <svg width="22" height="16" viewBox="0 0 22 16" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round">
+        <line x1="0" y1="2"  x2="22" y2="2"/>
+        <line x1="0" y1="8"  x2="22" y2="8"/>
+        <line x1="0" y1="14" x2="22" y2="14"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="mobileMenu" class="hidden md:hidden px-6 pb-5 border-t border-teal/10 bg-offwhite/95 backdrop-blur-md">
+    <div class="flex flex-col gap-1 pt-4">
+      <a href="./about.html"          class="nav-link py-2">About</a>
+      <a href="./index.html#services" class="nav-link py-2">Services</a>
+      <a href="./blog.html"           class="nav-link py-2">Blog</a>
+      <a href="./index.html#contact"  class="btn-nav text-center mt-2">Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE HERO
+════════════════════════════════════════════ -->
+<section style="background:var(--teal);position:relative;overflow:hidden;padding:8rem 1.5rem 5rem;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 80% at 85% 20%, rgba(62,168,130,0.22) 0%,transparent 60%),radial-gradient(ellipse 35% 50% at 5% 85%, rgba(137,184,204,0.15) 0%,transparent 55%);pointer-events:none;"></div>
+  <div style="position:absolute;right:-100px;top:-60px;width:420px;height:420px;border:1px solid rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
+  <div style="position:absolute;right:-40px;top:10px;width:280px;height:280px;border:1px solid rgba(255,255,255,0.05);border-radius:50%;pointer-events:none;"></div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <div class="eyebrow mb-5 reveal">
+      <span style="display:inline-block;width:1.5rem;height:1.5px;background:#8ED3AE;margin-right:0.5rem;vertical-align:middle;"></span>
+      Insights & Perspectives
+    </div>
+    <h1 style="font-family:'DM Serif Display',serif;font-size:clamp(2.5rem,5vw,3.75rem);line-height:1.1;letter-spacing:-0.025em;color:#fff;max-width:620px;" class="reveal reveal-delay-1">
+      Ideas worth<br/><em style="color:#8ED3AE;">thinking about.</em>
+    </h1>
+    <p class="reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;color:rgba(255,255,255,0.72);max-width:520px;margin-top:1.25rem;">
+      Writing from our team on cognitive development, therapeutic practice, education, and the philosophy of mind.
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     POSTS
+════════════════════════════════════════════ -->
+<section style="padding:4.5rem 1.5rem 6rem;">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Filter buttons -->
+    <div id="filterBar" class="flex flex-wrap gap-3 mb-10">
+      <button class="filter-btn active" data-category="all">All Posts</button>
+      <button class="filter-btn" data-category="Cognitive Therapy">Cognitive Therapy</button>
+      <button class="filter-btn" data-category="Therapist Training">Therapist Training</button>
+      <button class="filter-btn" data-category="Research">Research</button>
+    </div>
+
+    <!-- Posts grid -->
+    <div id="postsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+      <!-- Skeleton loading state (3 cards) -->
+      <div class="blog-card" style="min-height:320px;">
+        <div class="blog-card-inner">
+          <div class="skeleton" style="height:22px;width:110px;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:20px;width:90%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:75%;margin-bottom:1.25rem;"></div>
+          <div class="skeleton" style="height:14px;width:100%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:88%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:70%;"></div>
+        </div>
+        <div class="blog-card-footer" style="border-top:1px solid rgba(36,89,78,0.07);">
+          <div class="skeleton" style="height:13px;width:110px;"></div>
+          <div class="skeleton" style="height:13px;width:80px;"></div>
+        </div>
+      </div>
+      <div class="blog-card" style="min-height:320px;">
+        <div class="blog-card-inner">
+          <div class="skeleton" style="height:22px;width:140px;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:20px;width:85%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:95%;margin-bottom:1.25rem;"></div>
+          <div class="skeleton" style="height:14px;width:100%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:92%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:65%;"></div>
+        </div>
+        <div class="blog-card-footer">
+          <div class="skeleton" style="height:13px;width:110px;"></div>
+          <div class="skeleton" style="height:13px;width:80px;"></div>
+        </div>
+      </div>
+      <div class="blog-card" style="min-height:320px;">
+        <div class="blog-card-inner">
+          <div class="skeleton" style="height:22px;width:90px;margin-bottom:1rem;"></div>
+          <div class="skeleton" style="height:20px;width:90%;margin-bottom:0.5rem;"></div>
+          <div class="skeleton" style="height:20px;width:70%;margin-bottom:1.25rem;"></div>
+          <div class="skeleton" style="height:14px;width:100%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:80%;margin-bottom:0.4rem;"></div>
+          <div class="skeleton" style="height:14px;width:55%;"></div>
+        </div>
+        <div class="blog-card-footer">
+          <div class="skeleton" style="height:13px;width:110px;"></div>
+          <div class="skeleton" style="height:13px;width:80px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state (hidden by default) -->
+    <div id="emptyState" style="display:none;text-align:center;padding:4rem 0;">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#24594E;margin-bottom:0.75rem;">No posts in this category yet.</div>
+      <p style="color:#5a7570;font-size:0.9375rem;">Check back soon, or browse all posts.</p>
+      <button class="filter-btn" style="margin-top:1.5rem;" onclick="setFilter('all')">View All Posts</button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="py-12" style="background:#1a4038;">
+  <div class="max-w-6xl mx-auto px-6">
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:2.5rem;">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+        <div class="flex items-center gap-3">
+          <div style="width:32px;height:37px;opacity:0.9;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -4 108 122" width="32" height="37">
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" transform="translate(6,-5)" fill="#8ED3AE" opacity="0.7"/>
+              <path d="M14 64 A42 42 0 1 1 28 80 L10 112 Z" fill="#3EA882"/>
+              <circle cx="52" cy="46" r="26" fill="rgba(255,255,255,0.12)"/>
+              <path d="M52 23 A23 23 0 0 1 52 69 Z" fill="#89B8CC" opacity="0.8"/>
+              <path d="M52 23 A23 23 0 0 0 52 69 Z" fill="rgba(255,255,255,0.5)"/>
+              <circle cx="41" cy="46" r="7.5" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:0.9375rem;color:rgba(255,255,255,0.85);">Insight Center</div>
+            <div style="font-size:0.5625rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8ED3AE;">For Cognitive Development</div>
+          </div>
+        </div>
+        <nav class="flex flex-wrap gap-6">
+          <a href="./about.html"          class="footer-link">About</a>
+          <a href="./index.html#services" class="footer-link">Services</a>
+          <a href="./blog.html"           class="footer-link">Blog</a>
+          <a href="./index.html#contact"  class="footer-link">Contact</a>
+        </nav>
+        <div style="font-size:0.8125rem;color:rgba(255,255,255,0.35);">
+          &copy; 2026 Insight Center for Cognitive Development
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  // ─── Sanity config ─────────────────────────────────────────────────────────
+  // Replace YOUR_PROJECT_ID with your actual Sanity project ID after setup.
+  // Get it from: https://sanity.io/manage → your project → Settings → API
+  const SANITY_PROJECT_ID = 'YOUR_PROJECT_ID';
+  const SANITY_DATASET    = 'production';
+
+  const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
+
+  // ─── Fallback posts (shown when Sanity is not yet configured) ──────────────
+  const FALLBACK_POSTS = [
+    {
+      _id: '1',
+      title: 'What does it mean to truly understand something?',
+      slug: { current: 'what-does-it-mean-to-truly-understand' },
+      category: 'Cognitive Therapy',
+      excerpt: 'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience — and how therapists can support that shift.',
+      publishedAt: '2026-02-18',
+    },
+    {
+      _id: '2',
+      title: 'The mediating practitioner: a new model for therapeutic presence',
+      slug: { current: 'the-mediating-practitioner' },
+      category: 'Therapist Training',
+      excerpt: 'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators — bridging stimulus and response with intentional care.',
+      publishedAt: '2026-01-30',
+    },
+    {
+      _id: '3',
+      title: 'Cognitive modifiability across the lifespan: what the evidence shows',
+      slug: { current: 'cognitive-modifiability-across-the-lifespan' },
+      category: 'Research',
+      excerpt: 'A survey of current research on structural cognitive modifiability — the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.',
+      publishedAt: '2026-01-09',
+    },
+  ];
+
+  // ─── Category colors ───────────────────────────────────────────────────────
+  function categoryColor(cat) {
+    if (!cat) return '#89B8CC';
+    const c = cat.toLowerCase();
+    if (c.includes('research'))  return '#24594E';
+    if (c.includes('training'))  return '#3EA882';
+    return '#89B8CC'; // Cognitive Therapy / default
+  }
+
+  // ─── Format date ───────────────────────────────────────────────────────────
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // ─── Sanity fetch ──────────────────────────────────────────────────────────
+  async function sanityFetch(query) {
+    const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Sanity fetch failed');
+    const json = await res.json();
+    return json.result;
+  }
+
+  // ─── Build card HTML ───────────────────────────────────────────────────────
+  function buildCard(post) {
+    const slug  = post.slug?.current || '';
+    const color = categoryColor(post.category);
+    return `
+      <article class="blog-card">
+        <div class="blog-card-inner">
+          <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
+          <h3>${post.title}</h3>
+          <p>${post.excerpt || ''}</p>
+        </div>
+        <div class="blog-card-footer">
+          <span class="blog-date">${formatDate(post.publishedAt)}</span>
+          <a href="./post.html?slug=${slug}" class="blog-read-more">
+            Read more
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+    `;
+  }
+
+  // ─── State ─────────────────────────────────────────────────────────────────
+  let allPosts       = [];
+  let activeCategory = 'all';
+
+  function setFilter(cat) {
+    activeCategory = cat;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.category === cat);
+    });
+    renderPosts();
+  }
+
+  function renderPosts() {
+    const grid  = document.getElementById('postsGrid');
+    const empty = document.getElementById('emptyState');
+    const filtered = activeCategory === 'all'
+      ? allPosts
+      : allPosts.filter(p => p.category === activeCategory);
+
+    if (filtered.length === 0) {
+      grid.innerHTML  = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map(buildCard).join('');
+  }
+
+  // ─── Init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      if (SANITY_CONFIGURED) {
+        const query = `*[_type == "post"] | order(publishedAt desc) { _id, title, slug, category, excerpt, publishedAt }`;
+        allPosts = await sanityFetch(query);
+      } else {
+        // Sanity not yet set up — use fallback placeholder posts
+        allPosts = FALLBACK_POSTS;
+      }
+    } catch (e) {
+      allPosts = FALLBACK_POSTS;
+    }
+    renderPosts();
+  }
+
+  // ─── Filter button events ──────────────────────────────────────────────────
+  document.getElementById('filterBar').addEventListener('click', (e) => {
+    if (e.target.classList.contains('filter-btn')) {
+      setFilter(e.target.dataset.category);
+    }
+  });
+
+  // ─── Nav / mobile ──────────────────────────────────────────────────────────
+  const menuBtn    = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.style.boxShadow = window.scrollY > 20 ? '0 2px 16px rgba(36,89,78,0.08)' : 'none';
+  }, { passive: true });
+
+  // ─── Scroll reveal ─────────────────────────────────────────────────────────
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer  = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+  revealEls.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
+    else observer.observe(el);
+  });
+
+  init();
+</script>
+</body>
+</html>

@@ -479,10 +479,10 @@
 
     <!-- Links -->
     <div class="hidden md:flex items-center gap-7">
-      <a href="#about"    class="nav-link">About</a>
-      <a href="#services" class="nav-link">Services</a>
-      <a href="#blog"     class="nav-link">Blog</a>
-      <a href="#contact"  class="btn-nav">Contact</a>
+      <a href="./about.html" class="nav-link">About</a>
+      <a href="#services"   class="nav-link">Services</a>
+      <a href="./blog.html" class="nav-link">Blog</a>
+      <a href="#contact"    class="btn-nav">Contact</a>
     </div>
 
     <!-- Mobile menu button -->
@@ -498,10 +498,10 @@
   <!-- Mobile menu -->
   <div id="mobileMenu" class="hidden md:hidden px-6 pb-5 border-t border-teal/10 bg-offwhite/95 backdrop-blur-md">
     <div class="flex flex-col gap-1 pt-4">
-      <a href="#about"    class="nav-link py-2">About</a>
-      <a href="#services" class="nav-link py-2">Services</a>
-      <a href="#blog"     class="nav-link py-2">Blog</a>
-      <a href="#contact"  class="btn-nav text-center mt-2">Contact</a>
+      <a href="./about.html" class="nav-link py-2">About</a>
+      <a href="#services"   class="nav-link py-2">Services</a>
+      <a href="./blog.html" class="nav-link py-2">Blog</a>
+      <a href="#contact"    class="btn-nav text-center mt-2">Contact</a>
     </div>
   </div>
 </nav>
@@ -687,68 +687,55 @@
         <div class="section-label mb-3" style="color:#8ED3AE;">Recent Insights</div>
         <h2 class="section-title-light">Ideas worth thinking about.</h2>
       </div>
-      <a href="#" class="reveal reveal-delay-1" style="display:inline-flex;align-items:center;gap:0.5rem;color:#fff;border:1.5px solid rgba(255,255,255,0.35);padding:0.6rem 1.25rem;border-radius:6px;font-size:0.875rem;font-weight:600;letter-spacing:0.03em;width:fit-content;transition:background 0.2s ease,border-color 0.2s ease,transform 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.35)'">
+      <a href="./blog.html" class="reveal reveal-delay-1" style="display:inline-flex;align-items:center;gap:0.5rem;color:#fff;border:1.5px solid rgba(255,255,255,0.35);padding:0.6rem 1.25rem;border-radius:6px;font-size:0.875rem;font-weight:600;letter-spacing:0.03em;width:fit-content;transition:background 0.2s ease,border-color 0.2s ease,transform 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.35)'">
         View all posts
       </a>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
-
-      <!-- Post 1 -->
-      <article class="blog-card reveal reveal-delay-1">
+    <!-- Posts grid — populated by JS below -->
+    <div id="homeBlogGrid" class="grid md:grid-cols-3 gap-6">
+      <!-- Skeleton cards shown while loading -->
+      <div class="blog-card" style="min-height:280px;">
         <div class="blog-card-inner">
-          <span class="blog-tag">Cognitive Therapy</span>
-          <h3>What does it mean to truly understand something?</h3>
-          <p>Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience — and how therapists can support that shift.</p>
+          <div style="height:22px;width:120px;border-radius:100px;background:rgba(255,255,255,0.12);margin-bottom:1rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:18px;width:92%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:0.5rem;animation:blogSkel 1.4s infinite 0.1s;"></div>
+          <div style="height:18px;width:76%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:1rem;animation:blogSkel 1.4s infinite 0.2s;"></div>
+          <div style="height:13px;width:100%;border-radius:4px;background:rgba(255,255,255,0.06);margin-bottom:0.35rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:13px;width:85%;border-radius:4px;background:rgba(255,255,255,0.06);animation:blogSkel 1.4s infinite 0.1s;"></div>
         </div>
-        <div class="blog-card-footer">
-          <span class="blog-date">February 18, 2026</span>
-          <a href="#" class="blog-read-more">
-            Read more
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8h10M9 4l4 4-4 4"/>
-            </svg>
-          </a>
+        <div class="blog-card-footer" style="border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="height:12px;width:110px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:12px;width:75px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite 0.15s;"></div>
         </div>
-      </article>
-
-      <!-- Post 2 -->
-      <article class="blog-card reveal reveal-delay-2">
+      </div>
+      <div class="blog-card" style="min-height:280px;">
         <div class="blog-card-inner">
-          <span class="blog-tag" style="background:#3EA882;">Therapist Training</span>
-          <h3>The mediating practitioner: a new model for therapeutic presence</h3>
-          <p>Drawing on Feuerstein's mediated learning experience, we explore how therapists can position themselves as cognitive mediators — bridging stimulus and response with intentional care.</p>
+          <div style="height:22px;width:150px;border-radius:100px;background:rgba(255,255,255,0.12);margin-bottom:1rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:18px;width:85%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:0.5rem;animation:blogSkel 1.4s infinite 0.1s;"></div>
+          <div style="height:18px;width:95%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:1rem;animation:blogSkel 1.4s infinite 0.2s;"></div>
+          <div style="height:13px;width:100%;border-radius:4px;background:rgba(255,255,255,0.06);margin-bottom:0.35rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:13px;width:70%;border-radius:4px;background:rgba(255,255,255,0.06);animation:blogSkel 1.4s infinite 0.1s;"></div>
         </div>
-        <div class="blog-card-footer">
-          <span class="blog-date">January 30, 2026</span>
-          <a href="#" class="blog-read-more">
-            Read more
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8h10M9 4l4 4-4 4"/>
-            </svg>
-          </a>
+        <div class="blog-card-footer" style="border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="height:12px;width:110px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:12px;width:75px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite 0.15s;"></div>
         </div>
-      </article>
-
-      <!-- Post 3 -->
-      <article class="blog-card reveal reveal-delay-3">
+      </div>
+      <div class="blog-card" style="min-height:280px;">
         <div class="blog-card-inner">
-          <span class="blog-tag" style="background:#24594E;">Research</span>
-          <h3>Cognitive modifiability across the lifespan: what the evidence shows</h3>
-          <p>A survey of current research on structural cognitive modifiability — the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.</p>
+          <div style="height:22px;width:100px;border-radius:100px;background:rgba(255,255,255,0.12);margin-bottom:1rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:18px;width:88%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:0.5rem;animation:blogSkel 1.4s infinite 0.1s;"></div>
+          <div style="height:18px;width:70%;border-radius:4px;background:rgba(255,255,255,0.08);margin-bottom:1rem;animation:blogSkel 1.4s infinite 0.2s;"></div>
+          <div style="height:13px;width:100%;border-radius:4px;background:rgba(255,255,255,0.06);margin-bottom:0.35rem;animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:13px;width:78%;border-radius:4px;background:rgba(255,255,255,0.06);animation:blogSkel 1.4s infinite 0.1s;"></div>
         </div>
-        <div class="blog-card-footer">
-          <span class="blog-date">January 9, 2026</span>
-          <a href="#" class="blog-read-more">
-            Read more
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8h10M9 4l4 4-4 4"/>
-            </svg>
-          </a>
+        <div class="blog-card-footer" style="border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="height:12px;width:110px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite;"></div>
+          <div style="height:12px;width:75px;border-radius:4px;background:rgba(255,255,255,0.08);animation:blogSkel 1.4s infinite 0.15s;"></div>
         </div>
-      </article>
-
+      </div>
     </div>
+
   </div>
 </section>
 
@@ -878,10 +865,10 @@
 
         <!-- Nav links -->
         <nav class="flex flex-wrap gap-6">
-          <a href="#about"    class="footer-link">About</a>
-          <a href="#services" class="footer-link">Services</a>
-          <a href="#blog"     class="footer-link">Blog</a>
-          <a href="#contact"  class="footer-link">Contact</a>
+          <a href="./about.html" class="footer-link">About</a>
+          <a href="#services"   class="footer-link">Services</a>
+          <a href="./blog.html" class="footer-link">Blog</a>
+          <a href="#contact"    class="footer-link">Contact</a>
         </nav>
 
         <!-- Copyright -->
@@ -898,6 +885,93 @@
 <!-- ═══════════════════════════════════════════
      SCRIPTS
 ════════════════════════════════════════════ -->
+<style>
+  @keyframes blogSkel {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+</style>
+
+<script>
+  // ─── Sanity config ─────────────────────────────────────────────────────────
+  // Replace YOUR_PROJECT_ID with your actual Sanity project ID after setup.
+  const SANITY_PROJECT_ID = 'YOUR_PROJECT_ID';
+  const SANITY_DATASET    = 'production';
+  const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
+
+  const FALLBACK_POSTS = [
+    { _id:'1', title:'What does it mean to truly understand something?', slug:{current:'what-does-it-mean-to-truly-understand'}, category:'Cognitive Therapy', excerpt:'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience.', publishedAt:'2026-02-18' },
+    { _id:'2', title:'The mediating practitioner: a new model for therapeutic presence', slug:{current:'the-mediating-practitioner'}, category:'Therapist Training', excerpt:'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators.', publishedAt:'2026-01-30' },
+    { _id:'3', title:'Cognitive modifiability across the lifespan: what the evidence shows', slug:{current:'cognitive-modifiability-across-the-lifespan'}, category:'Research', excerpt:'A survey of current research on structural cognitive modifiability and what it means for therapeutic practice.', publishedAt:'2026-01-09' },
+  ];
+
+  function blogCategoryColor(cat) {
+    if (!cat) return '#89B8CC';
+    const c = cat.toLowerCase();
+    if (c.includes('research'))  return '#24594E';
+    if (c.includes('training'))  return '#3EA882';
+    return '#89B8CC';
+  }
+
+  function blogFormatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+    return d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function blogBuildCard(post, delay) {
+    const slug  = post.slug?.current || '';
+    const color = blogCategoryColor(post.category);
+    return `
+      <article class="blog-card reveal reveal-delay-${delay}">
+        <div class="blog-card-inner">
+          <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
+          <h3>${post.title}</h3>
+          <p>${post.excerpt || ''}</p>
+        </div>
+        <div class="blog-card-footer">
+          <span class="blog-date">${blogFormatDate(post.publishedAt)}</span>
+          <a href="./post.html?slug=${slug}" class="blog-read-more">
+            Read more
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4"/>
+            </svg>
+          </a>
+        </div>
+      </article>`;
+  }
+
+  async function loadHomeBlog() {
+    let posts;
+    try {
+      if (SANITY_CONFIGURED) {
+        const query = `*[_type == "post"] | order(publishedAt desc) [0..2] { _id, title, slug, category, excerpt, publishedAt }`;
+        const url   = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
+        const res   = await fetch(url);
+        if (!res.ok) throw new Error('fetch failed');
+        posts = (await res.json()).result;
+        if (!posts || posts.length === 0) posts = FALLBACK_POSTS;
+      } else {
+        posts = FALLBACK_POSTS;
+      }
+    } catch (e) {
+      posts = FALLBACK_POSTS;
+    }
+
+    const grid = document.getElementById('homeBlogGrid');
+    grid.innerHTML = posts.slice(0, 3).map((p, i) => blogBuildCard(p, i + 1)).join('');
+
+    // Trigger reveal on new cards
+    grid.querySelectorAll('.reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
+      else observer.observe(el);
+    });
+  }
+
+</script>
+
 <script>
   // Mobile menu toggle
   const menuBtn = document.getElementById('menuBtn');
@@ -930,6 +1004,9 @@
       observer.observe(el);
     }
   });
+
+  // Load blog posts after observer is ready
+  loadHomeBlog();
 
   // Nav background on scroll
   const nav = document.getElementById('nav');

@@ -307,6 +307,7 @@
 
         <div style="display:flex;align-items:center;gap:1rem;">
           <span id="postDate" style="font-size:0.875rem;color:rgba(255,255,255,0.55);"></span>
+          <span id="postAuthor" style="font-size:0.875rem;color:rgba(255,255,255,0.55);"></span>
         </div>
       </div>
     </div>
@@ -382,7 +383,7 @@
 <script>
   // ─── Sanity config ─────────────────────────────────────────────────────────
   // Replace YOUR_PROJECT_ID with your actual Sanity project ID.
-  const SANITY_PROJECT_ID = 'YOUR_PROJECT_ID';
+  const SANITY_PROJECT_ID = 'sgqr07bo';
   const SANITY_DATASET    = 'production';
   const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
 
@@ -511,6 +512,7 @@
     document.getElementById('postTag').style.background = color;
     document.getElementById('postTitle').textContent  = post.title;
     document.getElementById('postDate').textContent   = formatDate(post.publishedAt);
+    if (post.author) { const el = document.getElementById('postAuthor'); el.textContent = '— ' + post.author; }
 
     if (post.excerpt) {
       document.getElementById('postExcerpt').textContent = post.excerpt;
@@ -543,7 +545,7 @@
 
     try {
       if (SANITY_CONFIGURED) {
-        const query = `*[_type == "post" && slug.current == $slug][0]{ _id, title, slug, category, excerpt, publishedAt, body }`;
+        const query = `*[_type == "post" && slug.current == $slug][0]{ _id, title, "slug": slug.current, "category": categories[0]->title, "author": author->name, excerpt, publishedAt, body, mainImage }`;
         const post  = await sanityFetch(query, { slug });
         if (!post) throw new Error('not found');
         renderPost(post, false);

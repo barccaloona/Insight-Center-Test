@@ -104,6 +104,8 @@
       letter-spacing: -0.01em; margin: 0.75rem 0 0.625rem;
     }
     .blog-card p { font-size: 0.875rem; line-height: 1.7; color: #5a7570; }
+    .blog-card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+    .blog-card-img-placeholder { width: 100%; height: 180px; background: linear-gradient(135deg, rgba(36,89,78,0.08) 0%, rgba(62,168,130,0.12) 100%); display: block; }
     .blog-date { font-size: 0.8125rem; color: #8aa8a2; font-weight: 400; }
     .blog-read-more {
       font-size: 0.8125rem; font-weight: 600; color: var(--mint);
@@ -423,7 +425,7 @@
   // ─── Sanity config ─────────────────────────────────────────────────────────
   // Replace YOUR_PROJECT_ID with your actual Sanity project ID after setup.
   // Get it from: https://sanity.io/manage → your project → Settings → API
-  const SANITY_PROJECT_ID = 'YOUR_PROJECT_ID';
+  const SANITY_PROJECT_ID = 'sgqr07bo';
   const SANITY_DATASET    = 'production';
 
   const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
@@ -481,19 +483,35 @@
     return json.result;
   }
 
+  // ─── Sanity image URL ─────────────────────────────────────────────────────
+  function sanityImageUrl(image, width) {
+    if (!image?.asset?._ref) return null;
+    const ref = image.asset._ref; // e.g. "image-abc123-1200x800-jpg"
+    const parts = ref.replace('image-', '').split('-');
+    const ext = parts.pop();
+    const filename = parts.join('-') + '.' + ext;
+    const base = `https://cdn.sanity.io/images/${SANITY_PROJECT_ID}/${SANITY_DATASET}/${filename}`;
+    return width ? base + `?w=${width}&auto=format` : base;
+  }
+
   // ─── Build card HTML ───────────────────────────────────────────────────────
   function buildCard(post) {
-    const slug  = post.slug?.current || '';
+    const slug  = typeof post.slug === 'string' ? post.slug : (post.slug?.current || '');
     const color = categoryColor(post.category);
+    const imgUrl = sanityImageUrl(post.mainImage, 600);
     return `
       <article class="blog-card">
+        ${imgUrl ? `<img class="blog-card-img" src="${imgUrl}" alt="${post.title}" loading="lazy">` : '<span class="blog-card-img-placeholder"></span>'}
         <div class="blog-card-inner">
           <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
           <h3>${post.title}</h3>
           <p>${post.excerpt || ''}</p>
         </div>
         <div class="blog-card-footer">
-          <span class="blog-date">${formatDate(post.publishedAt)}</span>
+          <div style="display:flex;flex-direction:column;gap:0.125rem;">
+            <span class="blog-date">${formatDate(post.publishedAt)}</span>
+            ${post.author ? `<span style="font-size:0.75rem;color:#24594E;font-weight:500;opacity:0.7;">${post.author}</span>` : ''}
+          </div>
           <a href="./post.html?slug=${slug}" class="blog-read-more">
             Read more
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -537,7 +555,7 @@
   async function init() {
     try {
       if (SANITY_CONFIGURED) {
-        const query = `*[_type == "post"] | order(publishedAt desc) { _id, title, slug, category, excerpt, publishedAt }`;
+        const query = `*[_type == "post"] | order(publishedAt desc) { _id, title, "slug": slug.current, "category": categories[0]->title, "author": author->name, excerpt, publishedAt, mainImage }`;
         allPosts = await sanityFetch(query);
       } else {
         // Sanity not yet set up — use fallback placeholder posts

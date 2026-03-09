@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Post — Insight Center for Cognitive Development</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css">
   <script>
     tailwind.config = {
       theme: {
@@ -28,49 +26,6 @@
     };
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      --teal:      #24594E;
-      --teal-dark: #1a4038;
-      --mint:      #3EA882;
-      --mint-light:#8ED3AE;
-      --sky:       #89B8CC;
-      --offwhite:  #F7F6F2;
-      --ink:       #1c2e2a;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--offwhite);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── Nav ───────────────────────────────── */
-    #nav {
-      background: rgba(247,246,242,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(36,89,78,0.08);
-    }
-    .nav-link {
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-    }
-    .nav-link:hover, .nav-link.active { opacity: 1; }
-    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
-    .btn-nav {
-      background: var(--teal); color: #fff; font-size: 0.8125rem; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 1.25rem;
-      border-radius: 100px; transition: background 0.2s ease, transform 0.15s ease;
-    }
-    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
-    .btn-nav:active { transform: translateY(0); }
-
     /* ─── Skeleton ───────────────────────────── */
     .skeleton {
       background: linear-gradient(90deg, rgba(36,89,78,0.07) 25%, rgba(36,89,78,0.12) 50%, rgba(36,89,78,0.07) 75%);
@@ -100,9 +55,7 @@
       font-size: 1.0625rem; line-height: 1.85; color: #3a5550;
       margin-bottom: 1.375rem;
     }
-    .prose ul, .prose ol {
-      padding-left: 1.5rem; margin-bottom: 1.375rem;
-    }
+    .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1.375rem; }
     .prose ul li, .prose ol li {
       font-size: 1.0625rem; line-height: 1.8; color: #3a5550;
       margin-bottom: 0.5rem;
@@ -121,57 +74,6 @@
       font-size: 1.1875rem; font-style: italic;
       color: #24594E; line-height: 1.55;
     }
-
-    /* ─── Nav Dropdown ──────────────────────── */
-    .nav-dropdown-wrap { position: relative; }
-    .nav-dropdown-trigger {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-      cursor: pointer; background: none; border: none; padding: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-    .nav-dropdown-trigger:hover,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
-    .nav-dropdown-chevron { transition: transform 0.2s ease; }
-    .nav-dropdown-wrap:hover .nav-dropdown-chevron,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
-    .nav-dropdown-panel {
-      position: absolute; top: calc(100% + 10px); left: 50%;
-      width: 230px; background: #fff;
-      border: 1px solid rgba(36,89,78,0.09); border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06);
-      padding: 0.4rem; z-index: 200;
-      opacity: 0; pointer-events: none;
-      transform: translateX(-50%) translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
-    .nav-dropdown-wrap:hover .nav-dropdown-panel,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-panel {
-      opacity: 1; pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
-    }
-    .nav-dropdown-item {
-      display: block; padding: 0.7rem 0.875rem;
-      border-radius: 8px; text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
-    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
-    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
-    .mobile-sub-link {
-      display: block; padding: 0.5rem 0 0.5rem 1rem;
-      font-size: 0.8125rem; font-weight: 500; color: var(--teal);
-      letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65;
-      transition: opacity 0.2s ease; text-decoration: none;
-    }
-    .mobile-sub-link:hover { opacity: 1; }
-
-    /* ─── Footer ────────────────────────────── */
-    .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
-    .footer-link:hover { color: rgba(255,255,255,0.9); }
   </style>
 </head>
 <body>
@@ -472,21 +374,21 @@
     'what-does-it-mean-to-truly-understand': {
       title: 'What does it mean to truly understand something?',
       category: 'Cognitive Therapy',
-      excerpt: 'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience — and how therapists can support that shift.',
+      excerpt: 'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience, and how therapists can support that shift.',
       publishedAt: '2026-02-18',
       body: null,
     },
     'the-mediating-practitioner': {
       title: 'The mediating practitioner: a new model for therapeutic presence',
       category: 'Therapist Training',
-      excerpt: 'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators — bridging stimulus and response with intentional care.',
+      excerpt: 'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators, bridging stimulus and response with intentional care.',
       publishedAt: '2026-01-30',
       body: null,
     },
     'cognitive-modifiability-across-the-lifespan': {
       title: 'Cognitive modifiability across the lifespan: what the evidence shows',
       category: 'Research',
-      excerpt: 'A survey of current research on structural cognitive modifiability — the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.',
+      excerpt: 'A survey of current research on structural cognitive modifiability, the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.',
       publishedAt: '2026-01-09',
       body: null,
     },
@@ -505,7 +407,7 @@
 
   // ─── Render post ───────────────────────────────────────────────────────────
   function renderPost(post, fromFallback) {
-    document.title = `${post.title} — Insight Center`;
+    document.title = `${post.title}, Insight Center`;
 
     const color = categoryColor(post.category);
     document.getElementById('postTag').textContent    = post.category || 'Insight';

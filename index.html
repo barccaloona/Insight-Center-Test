@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Insight Center for Cognitive Development</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css">
   <script>
     tailwind.config = {
       theme: {
@@ -28,27 +26,6 @@
     };
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      --teal:      #24594E;
-      --teal-dark: #1a4038;
-      --mint:      #3EA882;
-      --mint-light:#8ED3AE;
-      --sky:       #89B8CC;
-      --offwhite:  #F7F6F2;
-      --ink:       #1c2e2a;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--offwhite);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-    }
-
     /* ─── SVG Grain Filter ───────────────────── */
     .grain::after {
       content: '';
@@ -59,40 +36,52 @@
       z-index: 1;
     }
 
-    /* ─── Nav ───────────────────────────────── */
-    #nav {
-      background: rgba(247,246,242,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(36,89,78,0.08);
+    /* ─── Eyebrow override (index uses var(--mint) not var(--mint-light)) */
+    .eyebrow { color: var(--mint); }
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 1.5rem;
+      height: 1.5px;
+      background: var(--mint);
     }
 
-    .nav-link {
+    h1.display {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
       color: var(--teal);
-      font-weight: 500;
-      font-size: 0.875rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      opacity: 0.75;
-      transition: opacity 0.2s ease;
     }
-    .nav-link:hover { opacity: 1; }
-    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
 
-    .btn-nav {
-      background: var(--teal);
-      color: #fff;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 0.5rem 1.25rem;
-      border-radius: 100px;
-      transition: background 0.2s ease, transform 0.15s ease;
+    /* ─── section-title override (index uses larger clamp) ─ */
+    h2.section-title {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
     }
-    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
-    .btn-nav:active { transform: translateY(0); }
-    .btn-nav:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+    /* ─── Hero ──────────────────────────────── */
+    #hero {
+      background: var(--offwhite);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 90% 10%, rgba(142,211,174,0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 50% at 105% 70%, rgba(137,184,204,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at -10% 80%, rgba(62,168,130,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-graphic {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 480px;
+    }
 
     /* ─── Buttons ───────────────────────────── */
     .btn-primary {
@@ -131,74 +120,6 @@
     .btn-ghost:active { transform: translateY(0); }
     .btn-ghost:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 8px; }
 
-    /* ─── Hero ──────────────────────────────── */
-    #hero {
-      background: var(--offwhite);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-gradient {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 90% 10%, rgba(142,211,174,0.28) 0%, transparent 65%),
-        radial-gradient(ellipse 45% 50% at 105% 70%, rgba(137,184,204,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at -10% 80%, rgba(62,168,130,0.1) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mint);
-    }
-    .eyebrow::before {
-      content: '';
-      display: block;
-      width: 1.5rem;
-      height: 1.5px;
-      background: var(--mint);
-    }
-
-    h1.display {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: clamp(2.5rem, 5.5vw, 4.25rem);
-      line-height: 1.1;
-      letter-spacing: -0.025em;
-      color: var(--teal);
-    }
-
-    /* ─── Abstract orb / decorative graphic ─── */
-    .hero-graphic {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-      max-width: 480px;
-    }
-
-    /* ─── Section shared ────────────────────── */
-    .section-label {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mint);
-    }
-
-    h2.section-title {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: clamp(2rem, 3.5vw, 2.75rem);
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: var(--teal);
-    }
-
     /* ─── Services ──────────────────────────── */
     #services { background: #fff; }
 
@@ -210,9 +131,7 @@
       position: relative;
       overflow: hidden;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow:
-        0 2px 8px rgba(36,89,78,0.06),
-        0 1px 2px rgba(36,89,78,0.04);
+      box-shadow: 0 2px 8px rgba(36,89,78,0.06), 0 1px 2px rgba(36,89,78,0.04);
     }
     .service-card::before {
       content: '';
@@ -224,12 +143,9 @@
     .service-card.s1::before { background: var(--teal); }
     .service-card.s2::before { background: var(--mint); }
     .service-card.s3::before { background: var(--sky); }
-
     .service-card:hover {
       transform: translateY(-4px);
-      box-shadow:
-        0 12px 32px rgba(36,89,78,0.12),
-        0 3px 8px rgba(36,89,78,0.07);
+      box-shadow: 0 12px 32px rgba(36,89,78,0.12), 0 3px 8px rgba(36,89,78,0.07);
     }
     .service-card:focus-within { outline: 2px solid var(--mint); outline-offset: 2px; border-radius: 12px; }
 
@@ -250,12 +166,7 @@
       letter-spacing: -0.01em;
       margin-bottom: 0.75rem;
     }
-
-    .service-card p {
-      font-size: 0.9375rem;
-      line-height: 1.75;
-      color: #4a6960;
-    }
+    .service-card p { font-size: 0.9375rem; line-height: 1.75; color: #4a6960; }
 
     .service-link {
       display: inline-flex;
@@ -271,7 +182,7 @@
     .service-link:hover { gap: 0.625rem; }
     .service-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
 
-    /* ─── Blog ──────────────────────────────── */
+    /* ─── Blog section (dark teal bg on homepage) ── */
     #blog { background: var(--teal); position: relative; overflow: hidden; }
 
     .blog-bg-circle {
@@ -289,68 +200,13 @@
       color: #fff;
     }
 
-    .blog-card {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    /* Blog card shadow override for dark bg context */
+    #blog .blog-card {
       box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.08);
     }
-    .blog-card:hover {
-      transform: translateY(-4px);
+    #blog .blog-card:hover {
       box-shadow: 0 16px 40px rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.1);
     }
-
-    .blog-card-inner { padding: 1.75rem 1.75rem 1.5rem; }
-
-    .blog-tag {
-      display: inline-block;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #fff;
-      background: var(--sky);
-      padding: 0.25rem 0.625rem;
-      border-radius: 100px;
-    }
-
-    .blog-card h3 {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: 1.25rem;
-      color: var(--teal);
-      line-height: 1.3;
-      letter-spacing: -0.01em;
-      margin: 0.75rem 0 0.625rem;
-    }
-
-    .blog-card p {
-      font-size: 0.875rem;
-      line-height: 1.7;
-      color: #5a7570;
-    }
-
-    .blog-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.75rem;
-      border-top: 1px solid rgba(36,89,78,0.07);
-    }
-
-    .blog-date { font-size: 0.8125rem; color: #8aa8a2; font-weight: 400; }
-
-    .blog-read-more {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--mint);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      transition: gap 0.2s ease;
-    }
-    .blog-read-more:hover { gap: 0.55rem; }
-    .blog-read-more:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
 
     /* ─── Contact ───────────────────────────── */
     #contact { background: var(--offwhite); }
@@ -425,80 +281,6 @@
 
     /* ─── Footer ────────────────────────────── */
     #footer { background: var(--teal-dark, #1a4038); }
-
-    .footer-link {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.55);
-      transition: color 0.2s ease;
-    }
-    .footer-link:hover { color: rgba(255,255,255,0.9); }
-    .footer-link:focus-visible { outline: 2px solid var(--mint-light, #8ED3AE); outline-offset: 3px; border-radius: 2px; }
-
-    /* ─── Scroll reveal ─────────────────────── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
-
-    /* ─── Nav Dropdown ──────────────────────── */
-    .nav-dropdown-wrap { position: relative; }
-
-    .nav-dropdown-trigger {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-      cursor: pointer; background: none; border: none; padding: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-    .nav-dropdown-trigger:hover,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
-    .nav-dropdown-chevron { transition: transform 0.2s ease; }
-    .nav-dropdown-wrap:hover .nav-dropdown-chevron,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
-
-    .nav-dropdown-panel {
-      position: absolute; top: calc(100% + 10px); left: 50%;
-      width: 230px; background: #fff;
-      border: 1px solid rgba(36,89,78,0.09); border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06);
-      padding: 0.4rem; z-index: 200;
-      opacity: 0; pointer-events: none;
-      transform: translateX(-50%) translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
-    .nav-dropdown-wrap:hover .nav-dropdown-panel,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-panel {
-      opacity: 1; pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
-    }
-    .nav-dropdown-item {
-      display: block; padding: 0.7rem 0.875rem;
-      border-radius: 8px; text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
-    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
-    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
-
-    /* Mobile services sub-menu */
-    .mobile-sub-link {
-      display: block; padding: 0.5rem 0 0.5rem 1rem;
-      font-size: 0.8125rem; font-weight: 500; color: var(--teal);
-      letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65;
-      transition: opacity 0.2s ease; text-decoration: none;
-    }
-    .mobile-sub-link:hover { opacity: 1; }
   </style>
 </head>
 <body>
@@ -611,11 +393,11 @@
       </h1>
 
       <p class="mt-6 reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;color:rgba(255,255,255,0.78);max-width:36rem;">
-        The Insight Center for Cognitive Development exists to cultivate critical thinking, sound judgment, and responsible decision-making — the foundational capacities that underpin lifelong learning and human flourishing.
+        The Insight Center for Cognitive Development exists to cultivate critical thinking, sound judgment, and responsible decision-making, the foundational capacities that underpin lifelong learning and human flourishing.
       </p>
 
       <div class="flex flex-wrap gap-4 mt-9 reveal reveal-delay-3">
-        <a href="#services" class="btn-primary">
+        <a href="./about.html" class="btn-primary">
           Explore Our Work
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 8h10M9 4l4 4-4 4"/>
@@ -624,23 +406,7 @@
         <a href="#about" class="btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.35);" onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(255,255,255,0.35)'">Learn More</a>
       </div>
 
-      <!-- Stats row -->
-      <div class="flex gap-8 mt-12 reveal reveal-delay-4">
-        <div>
-          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">20+</div>
-          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Years of Practice</div>
-        </div>
-        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
-        <div>
-          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">800+</div>
-          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Clients Supported</div>
-        </div>
-        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
-        <div>
-          <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:#fff;line-height:1;">3</div>
-          <div style="font-size:0.8125rem;font-weight:500;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:0.02em;">Core Programs</div>
-        </div>
-      </div>
+
 
     </div>
   </div>
@@ -662,10 +428,10 @@
       </div>
       <div class="reveal reveal-delay-1">
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
-          Founded on the landmark work of Lonergan and Feuerstein, the Insight Center bridges theory and practice in the service of human development. We believe that cognitive capacity is not fixed — it is modifiable, trainable, and expandable at every stage of life.
+          Founded on the landmark work of Lonergan and Feuerstein, the Insight Center bridges theory and practice in the service of human development. We believe that cognitive capacity is not fixed, it is modifiable, trainable, and expandable at every stage of life.
         </p>
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-top:1rem;">
-          Our work is grounded in the conviction that insight — genuine, personal, and transformative — is the engine of lasting change.
+          Our work is grounded in the conviction that insight, genuine, personal, and transformative, is the engine of lasting change.
         </p>
       </div>
     </div>
@@ -689,7 +455,7 @@
 
     <div class="grid md:grid-cols-3 gap-7">
 
-      <!-- Card 1 — Cognitive Therapy -->
+      <!-- Card 1, Cognitive Therapy -->
       <div class="service-card s1 reveal reveal-delay-1">
         <div class="service-icon" style="background:rgba(36,89,78,0.1);width:3.25rem;height:3.25rem;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#24594E" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -699,7 +465,7 @@
           </svg>
         </div>
         <h3>Cognitive Therapy</h3>
-        <p>Individual and group therapy grounded in cognitive-mediational principles. We work at the level of thinking itself — helping clients develop the awareness and tools to reshape their own cognitive patterns.</p>
+        <p>Individual and group therapy grounded in cognitive-mediational principles. We work at the level of thinking itself, helping clients develop the awareness and tools to reshape their own cognitive patterns.</p>
         <a href="./cognitive-therapy.html" class="service-link">
           Learn more
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -708,7 +474,7 @@
         </a>
       </div>
 
-      <!-- Card 2 — Therapist Training -->
+      <!-- Card 2, Therapist Training -->
       <div class="service-card s2 reveal reveal-delay-2">
         <div class="service-icon" style="background:rgba(62,168,130,0.12);width:3.25rem;height:3.25rem;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3EA882" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -727,7 +493,7 @@
         </a>
       </div>
 
-      <!-- Card 3 — Consulting -->
+      <!-- Card 3, Consulting -->
       <div class="service-card s3 reveal reveal-delay-3">
         <div class="service-icon" style="background:rgba(137,184,204,0.15);width:3.25rem;height:3.25rem;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -772,7 +538,7 @@
       </a>
     </div>
 
-    <!-- Posts grid — populated by JS below -->
+    <!-- Posts grid, populated by JS below -->
     <div id="homeBlogGrid" class="grid md:grid-cols-3 gap-6">
       <!-- Skeleton cards shown while loading -->
       <div class="blog-card" style="min-height:280px;">
@@ -839,7 +605,7 @@
       <!-- Left: Contact info -->
       <div class="reveal">
         <blockquote style="border-left:3px solid #3EA882;padding-left:1.25rem;margin-bottom:2.5rem;">
-          <p style="font-family:'DM Serif Display',serif;font-size:1.25rem;font-style:italic;color:#24594E;line-height:1.55;">"The goal of education is not to fill a bucket but to light a fire — and the same is true of all genuine cognitive development."</p>
+          <p style="font-family:'DM Serif Display',serif;font-size:1.25rem;font-style:italic;color:#24594E;line-height:1.55;">"The goal of education is not to fill a bucket but to light a fire, and the same is true of all genuine cognitive development."</p>
         </blockquote>
 
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
@@ -974,16 +740,13 @@
 </style>
 
 <script>
-  // ─── Sanity config ─────────────────────────────────────────────────────────
-  // Replace YOUR_PROJECT_ID with your actual Sanity project ID after setup.
-  const SANITY_PROJECT_ID = 'sgqr07bo';
-  const SANITY_DATASET    = 'production';
-  const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
+  // ─── Substack config ───────────────────────────────────────────────────────
+  const SUBSTACK_RSS = 'https://girardmiller.substack.com/feed';
 
   const FALLBACK_POSTS = [
-    { _id:'1', title:'What does it mean to truly understand something?', slug:{current:'what-does-it-mean-to-truly-understand'}, category:'Cognitive Therapy', excerpt:'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience.', publishedAt:'2026-02-18' },
-    { _id:'2', title:'The mediating practitioner: a new model for therapeutic presence', slug:{current:'the-mediating-practitioner'}, category:'Therapist Training', excerpt:'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators.', publishedAt:'2026-01-30' },
-    { _id:'3', title:'Cognitive modifiability across the lifespan: what the evidence shows', slug:{current:'cognitive-modifiability-across-the-lifespan'}, category:'Research', excerpt:'A survey of current research on structural cognitive modifiability and what it means for therapeutic practice.', publishedAt:'2026-01-09' },
+    { _id:'1', title:'What does it mean to truly understand something?', link:'#', category:'Cognitive Therapy', excerpt:'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience.', publishedAt:'2026-02-18' },
+    { _id:'2', title:'The mediating practitioner: a new model for therapeutic presence', link:'#', category:'Therapist Training', excerpt:'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators.', publishedAt:'2026-01-30' },
+    { _id:'3', title:'Cognitive modifiability across the lifespan: what the evidence shows', link:'#', category:'Research', excerpt:'A survey of current research on structural cognitive modifiability and what it means for therapeutic practice.', publishedAt:'2026-01-09' },
   ];
 
   function blogCategoryColor(cat) {
@@ -996,23 +759,31 @@
 
   function blogFormatDate(iso) {
     if (!iso) return '';
-    const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
-    return d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function blogStripHtml(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
   }
 
   function blogBuildCard(post, delay) {
-    const slug  = post.slug?.current || '';
     const color = blogCategoryColor(post.category);
     return `
       <article class="blog-card reveal reveal-delay-${delay}">
+        ${post.thumbnail ? `<img class="blog-card-img" src="${post.thumbnail}" alt="${post.title}" loading="lazy">` : '<span class="blog-card-img-placeholder"></span>'}
         <div class="blog-card-inner">
           <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
           <h3>${post.title}</h3>
           <p>${post.excerpt || ''}</p>
         </div>
         <div class="blog-card-footer">
-          <span class="blog-date">${blogFormatDate(post.publishedAt)}</span>
-          <a href="./post.html?slug=${slug}" class="blog-read-more">
+          <div style="display:flex;flex-direction:column;gap:0.125rem;">
+            <span class="blog-date">${blogFormatDate(post.publishedAt)}</span>
+            ${post.author ? `<span style="font-size:0.75rem;color:#24594E;font-weight:500;opacity:0.7;">${post.author}</span>` : ''}
+          </div>
+          <a href="${post.link}" target="_blank" rel="noopener" class="blog-read-more">
             Read more
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 8h10M9 4l4 4-4 4"/>
@@ -1025,16 +796,20 @@
   async function loadHomeBlog() {
     let posts;
     try {
-      if (SANITY_CONFIGURED) {
-        const query = `*[_type == "post"] | order(publishedAt desc) [0..2] { _id, title, slug, category, excerpt, publishedAt }`;
-        const url   = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
-        const res   = await fetch(url);
-        if (!res.ok) throw new Error('fetch failed');
-        posts = (await res.json()).result;
-        if (!posts || posts.length === 0) posts = FALLBACK_POSTS;
-      } else {
-        posts = FALLBACK_POSTS;
-      }
+      const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(SUBSTACK_RSS)}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.status !== 'ok') throw new Error('RSS parse failed');
+      posts = json.items.slice(0, 3).map(item => ({
+        _id: item.guid,
+        title: item.title,
+        link: item.link,
+        category: item.categories?.[0] || 'Insight',
+        excerpt: blogStripHtml(item.description).slice(0, 180).trim() + '…',
+        publishedAt: item.pubDate,
+        author: item.author,
+        thumbnail: item.thumbnail || item.enclosure?.link || null,
+      }));
     } catch (e) {
       posts = FALLBACK_POSTS;
     }
@@ -1042,7 +817,6 @@
     const grid = document.getElementById('homeBlogGrid');
     grid.innerHTML = posts.slice(0, 3).map((p, i) => blogBuildCard(p, i + 1)).join('');
 
-    // Trigger reveal on new cards
     grid.querySelectorAll('.reveal').forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add('visible');
@@ -1069,7 +843,7 @@
     mobileServicesChev.style.transform = open ? '' : 'rotate(180deg)';
   });
 
-  // Scroll reveal — trigger immediately for anything already in viewport on load
+  // Scroll reveal, trigger immediately for anything already in viewport on load
   const revealEls = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {

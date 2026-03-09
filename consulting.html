@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Consulting — Insight Center for Cognitive Development</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css">
   <script>
     tailwind.config = {
       theme: {
@@ -24,54 +22,33 @@
     };
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    :root { --teal:#24594E; --teal-dark:#1a4038; --mint:#3EA882; --mint-light:#8ED3AE; --sky:#89B8CC; --sky-pale:#daeef7; --offwhite:#F7F6F2; --ink:#1c2e2a; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Outfit', sans-serif; background: var(--offwhite); color: var(--ink); -webkit-font-smoothing: antialiased; }
+    /* ─── Consulting page color overrides ──────── */
+    .eyebrow     { color: #b8d9e8; }
+    .section-label { color: var(--sky); }
 
-    #nav { background: rgba(247,246,242,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(36,89,78,0.08); }
-    .nav-link { color: var(--teal); font-weight: 500; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.75; transition: opacity 0.2s ease; }
-    .nav-link:hover, .nav-link.active { opacity: 1; }
-    .btn-nav { background: var(--teal); color: #fff; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 1.25rem; border-radius: 100px; transition: background 0.2s ease, transform 0.15s ease; }
-    .btn-nav:hover { background: var(--mint); transform: translateY(-1px); }
+    /* ─── process-num override: sky on consulting ─ */
+    .process-num { background: #89B8CC; }
 
-    .nav-dropdown-wrap { position: relative; }
-    .nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--teal); font-weight: 500; font-size: 0.875rem; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.75; transition: opacity 0.2s ease; cursor: pointer; background: none; border: none; padding: 0; font-family: 'Outfit', sans-serif; }
-    .nav-dropdown-trigger:hover, .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
-    .nav-dropdown-chevron { transition: transform 0.2s ease; }
-    .nav-dropdown-wrap:hover .nav-dropdown-chevron, .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
-    .nav-dropdown-panel { position: absolute; top: calc(100% + 10px); left: 50%; width: 230px; background: #fff; border: 1px solid rgba(36,89,78,0.09); border-radius: 12px; box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06); padding: 0.4rem; z-index: 200; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(-6px); transition: opacity 0.18s ease, transform 0.18s ease; }
-    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
-    .nav-dropdown-wrap:hover .nav-dropdown-panel, .nav-dropdown-wrap:focus-within .nav-dropdown-panel { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
-    .nav-dropdown-item { display: block; padding: 0.7rem 0.875rem; border-radius: 8px; text-decoration: none; transition: background 0.15s ease; }
-    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
-    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
-    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
-    .mobile-sub-link { display: block; padding: 0.5rem 0 0.5rem 1rem; font-size: 0.8125rem; font-weight: 500; color: var(--teal); letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65; transition: opacity 0.2s ease; text-decoration: none; }
-    .mobile-sub-link:hover { opacity: 1; }
-
-    .eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #b8d9e8; }
-    .section-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sky); }
-    h2.section-title { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(1.875rem, 3vw, 2.625rem); line-height: 1.15; letter-spacing: -0.02em; color: var(--teal); }
-
-    .process-step { display: flex; gap: 1.5rem; align-items: flex-start; }
-    .process-num { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #89B8CC; color: #fff; font-family: 'DM Serif Display', serif; font-size: 1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.125rem; }
-
-    .who-card { background: #fff; border: 1px solid rgba(36,89,78,0.08); border-radius: 12px; padding: 1.875rem 1.75rem; box-shadow: 0 2px 10px rgba(36,89,78,0.06); transition: transform 0.25s ease, box-shadow 0.25s ease; }
-    .who-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(36,89,78,0.1); }
-
-    .engagement-card { background: #fff; border-radius: 14px; padding: 2.25rem; border: 1px solid rgba(36,89,78,0.08); box-shadow: 0 2px 12px rgba(36,89,78,0.06); position: relative; overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    /* ─── Engagement cards (page-specific) ──────── */
+    .engagement-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2.25rem;
+      border: 1px solid rgba(36,89,78,0.08);
+      box-shadow: 0 2px 12px rgba(36,89,78,0.06);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
     .engagement-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(36,89,78,0.1); }
-    .engagement-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 14px 14px 0 0; background: #89B8CC; }
-
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-
-    .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
-    .footer-link:hover { color: rgba(255,255,255,0.9); }
+    .engagement-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 14px 14px 0 0;
+      background: #89B8CC;
+    }
   </style>
 </head>
 <body>
@@ -165,7 +142,7 @@
       Building organizations that<br/><em style="color:#b8d9e8;">think well</em> together.
     </h1>
     <p class="reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.85;color:rgba(255,255,255,0.72);max-width:520px;margin-top:1.375rem;">
-      Systemic cognitive development for institutions that want to change not just what their people do, but how they think — together, and over time.
+      Systemic cognitive development for institutions that want to change not just what their people do, but how they think, together, and over time.
     </p>
     <div class="reveal reveal-delay-3" style="margin-top:2.25rem;">
       <a href="./index.html#contact" style="display:inline-flex;align-items:center;gap:0.5rem;background:#89B8CC;color:#fff;font-weight:600;font-size:0.9375rem;padding:0.875rem 1.875rem;border-radius:6px;text-decoration:none;box-shadow:0 4px 16px rgba(137,184,204,0.35);transition:transform 0.15s ease,box-shadow 0.2s ease,background 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.background='#6aa3bb'" onmouseout="this.style.transform='';this.style.background='#89B8CC'">
@@ -187,10 +164,10 @@
       </div>
       <div class="reveal reveal-delay-1">
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-bottom:1.125rem;">
-          Most organizational training delivers content — frameworks, skills, protocols. Our consulting engagements go deeper. We work at the level of cognition itself: how your people perceive problems, make meaning, and collaborate across difference.
+          Most organizational training delivers content, frameworks, skills, protocols. Our consulting engagements go deeper. We work at the level of cognition itself: how your people perceive problems, make meaning, and collaborate across difference.
         </p>
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-bottom:1.125rem;">
-          Drawing on Feuerstein's theory of Structural Cognitive Modifiability and Lonergan's philosophy of intentional consciousness, we design engagements that shift organizational culture from the inside out — through carefully mediated experiences that alter how staff think together, not just what they agree to do together.
+          Drawing on Feuerstein's theory of Structural Cognitive Modifiability and Lonergan's philosophy of intentional consciousness, we design engagements that shift organizational culture from the inside out, through carefully mediated experiences that alter how staff think together, not just what they agree to do together.
         </p>
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
           We do not offer off-the-shelf training events. Every engagement is custom-designed with and for your institution, grounded in an honest assessment of where your organization is and where it needs to go.
@@ -218,7 +195,7 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#89B8CC" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         </div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.625rem;line-height:1.25;">Schools &amp; Educational Institutions</h3>
-        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Schools seeking to build genuine learning cultures — where staff and students alike are developing as thinkers, not merely performing tasks or meeting benchmarks.</p>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Schools seeking to build genuine learning cultures, where staff and students alike are developing as thinkers, not merely performing tasks or meeting benchmarks.</p>
       </div>
 
       <div class="who-card reveal reveal-delay-2">
@@ -259,7 +236,7 @@
           <div class="process-num">1</div>
           <div>
             <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Discovery &amp; Assessment</div>
-            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We begin by listening — to leadership, staff, and where relevant, clients or students. We seek to understand the real cognitive and cultural dynamics at play, not just the presenting problem. This phase shapes everything that follows.</p>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We begin by listening, to leadership, staff, and where relevant, clients or students. We seek to understand the real cognitive and cultural dynamics at play, not just the presenting problem. This phase shapes everything that follows.</p>
           </div>
         </div>
 
@@ -267,7 +244,7 @@
           <div class="process-num">2</div>
           <div>
             <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Custom Program Design</div>
-            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Drawing on the discovery phase, we co-design an engagement tailored to your institution's needs, culture, and goals. We do not adapt a standard program — we build yours from the ground up, with explicit attention to what will and won't work in your context.</p>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Drawing on the discovery phase, we co-design an engagement tailored to your institution's needs, culture, and goals. We do not adapt a standard program, we build yours from the ground up, with explicit attention to what will and won't work in your context.</p>
           </div>
         </div>
 
@@ -275,7 +252,7 @@
           <div class="process-num">3</div>
           <div>
             <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Facilitated Workshops</div>
-            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We facilitate sessions designed as genuine mediated learning experiences — not presentations or trainings, but carefully orchestrated encounters that shift how participants see and think. Sessions may be with leadership, staff cohorts, or cross-functional groups.</p>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">We facilitate sessions designed as genuine mediated learning experiences, not presentations or trainings, but carefully orchestrated encounters that shift how participants see and think. Sessions may be with leadership, staff cohorts, or cross-functional groups.</p>
           </div>
         </div>
 
@@ -283,7 +260,7 @@
           <div class="process-num">4</div>
           <div>
             <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#24594E;margin-bottom:0.375rem;">Evaluation &amp; Follow-Up</div>
-            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Real change takes time. We build in structured evaluation and follow-up — including optional ongoing consultation — to help your institution integrate and sustain what was learned. We are invested in outcomes, not just delivery.</p>
+            <p style="font-size:0.9375rem;line-height:1.75;color:#5a7570;">Real change takes time. We build in structured evaluation and follow-up, including optional ongoing consultation, to help your institution integrate and sustain what was learned. We are invested in outcomes, not just delivery.</p>
           </div>
         </div>
 
@@ -305,7 +282,7 @@
       <div class="engagement-card reveal reveal-delay-1">
         <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#89B8CC;margin-bottom:0.875rem;">Engagement A</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#24594E;margin-bottom:0.875rem;line-height:1.2;">Multi-Session Staff Development</h3>
-        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A semester-long series of facilitated sessions with a school staff — building a shared vocabulary for cognitive development, examining real instructional challenges through a mediated learning lens, and developing internal capacity for ongoing reflective practice.</p>
+        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A semester-long series of facilitated sessions with a school staff, building a shared vocabulary for cognitive development, examining real instructional challenges through a mediated learning lens, and developing internal capacity for ongoing reflective practice.</p>
         <ul style="font-size:0.875rem;color:#5a7570;line-height:1.8;list-style:none;padding:0;">
           <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> 6–8 facilitated sessions</li>
           <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Embedded in existing PD calendar</li>
@@ -316,7 +293,7 @@
       <div class="engagement-card reveal reveal-delay-2">
         <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#89B8CC;margin-bottom:0.875rem;">Engagement B</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#24594E;margin-bottom:0.875rem;line-height:1.2;">Executive Team Reflection Retreat</h3>
-        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A 2-day residential retreat for a senior leadership team — creating the conditions for genuine reflective inquiry into the organization's cognitive culture, shared assumptions, and capacity for adaptive change. Grounded in Lonergan's account of authentic subjectivity and collaborative decision-making.</p>
+        <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1.25rem;">A 2-day residential retreat for a senior leadership team, creating the conditions for genuine reflective inquiry into the organization's cognitive culture, shared assumptions, and capacity for adaptive change. Grounded in Lonergan's account of authentic subjectivity and collaborative decision-making.</p>
         <ul style="font-size:0.875rem;color:#5a7570;line-height:1.8;list-style:none;padding:0;">
           <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> 2-day residential format</li>
           <li style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;"><span style="color:#89B8CC;font-size:1rem;">✓</span> Pre-retreat discovery interviews</li>

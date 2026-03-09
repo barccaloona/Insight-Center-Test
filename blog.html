@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Insights — Insight Center for Cognitive Development</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css">
   <script>
     tailwind.config = {
       theme: {
@@ -28,93 +26,6 @@
     };
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      --teal:      #24594E;
-      --teal-dark: #1a4038;
-      --mint:      #3EA882;
-      --mint-light:#8ED3AE;
-      --sky:       #89B8CC;
-      --offwhite:  #F7F6F2;
-      --ink:       #1c2e2a;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--offwhite);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── Nav ───────────────────────────────── */
-    #nav {
-      background: rgba(247,246,242,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(36,89,78,0.08);
-    }
-    .nav-link {
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-    }
-    .nav-link:hover, .nav-link.active { opacity: 1; }
-    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
-    .btn-nav {
-      background: var(--teal); color: #fff; font-size: 0.8125rem; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 1.25rem;
-      border-radius: 100px; transition: background 0.2s ease, transform 0.15s ease;
-    }
-    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
-    .btn-nav:active { transform: translateY(0); }
-    .btn-nav:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
-
-    /* ─── Blog cards ─────────────────────────── */
-    .blog-card {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(36,89,78,0.08);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 2px 12px rgba(36,89,78,0.07), 0 1px 3px rgba(36,89,78,0.04);
-      display: flex;
-      flex-direction: column;
-    }
-    .blog-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 14px 36px rgba(36,89,78,0.12), 0 3px 8px rgba(36,89,78,0.07);
-    }
-    .blog-card-inner { padding: 1.75rem 1.75rem 1.25rem; flex: 1; }
-    .blog-card-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.75rem;
-      border-top: 1px solid rgba(36,89,78,0.07);
-    }
-    .blog-tag {
-      display: inline-block; font-size: 0.6875rem; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase; color: #fff;
-      padding: 0.25rem 0.625rem; border-radius: 100px;
-    }
-    .blog-card h3 {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: 1.1875rem; color: var(--teal); line-height: 1.3;
-      letter-spacing: -0.01em; margin: 0.75rem 0 0.625rem;
-    }
-    .blog-card p { font-size: 0.875rem; line-height: 1.7; color: #5a7570; }
-    .blog-card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
-    .blog-card-img-placeholder { width: 100%; height: 180px; background: linear-gradient(135deg, rgba(36,89,78,0.08) 0%, rgba(62,168,130,0.12) 100%); display: block; }
-    .blog-date { font-size: 0.8125rem; color: #8aa8a2; font-weight: 400; }
-    .blog-read-more {
-      font-size: 0.8125rem; font-weight: 600; color: var(--mint);
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      transition: gap 0.2s ease;
-      text-decoration: none;
-    }
-    .blog-read-more:hover { gap: 0.55rem; }
-
     /* ─── Filter buttons ─────────────────────── */
     .filter-btn {
       font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em;
@@ -139,72 +50,6 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-
-    /* ─── Scroll reveal ─────────────────────── */
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-
-    /* ─── Nav Dropdown ──────────────────────── */
-    .nav-dropdown-wrap { position: relative; }
-    .nav-dropdown-trigger {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-      cursor: pointer; background: none; border: none; padding: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-    .nav-dropdown-trigger:hover,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
-    .nav-dropdown-chevron { transition: transform 0.2s ease; }
-    .nav-dropdown-wrap:hover .nav-dropdown-chevron,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
-    .nav-dropdown-panel {
-      position: absolute; top: calc(100% + 10px); left: 50%;
-      width: 230px; background: #fff;
-      border: 1px solid rgba(36,89,78,0.09); border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06);
-      padding: 0.4rem; z-index: 200;
-      opacity: 0; pointer-events: none;
-      transform: translateX(-50%) translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
-    .nav-dropdown-wrap:hover .nav-dropdown-panel,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-panel {
-      opacity: 1; pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
-    }
-    .nav-dropdown-item {
-      display: block; padding: 0.7rem 0.875rem;
-      border-radius: 8px; text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
-    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
-    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
-    .mobile-sub-link {
-      display: block; padding: 0.5rem 0 0.5rem 1rem;
-      font-size: 0.8125rem; font-weight: 500; color: var(--teal);
-      letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65;
-      transition: opacity 0.2s ease; text-decoration: none;
-    }
-    .mobile-sub-link:hover { opacity: 1; }
-
-    /* ─── Footer ────────────────────────────── */
-    .footer-link { font-size: 0.875rem; color: rgba(255,255,255,0.55); transition: color 0.2s ease; }
-    .footer-link:hover { color: rgba(255,255,255,0.9); }
-
-    /* ─── Section label / eyebrow ───────────── */
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--mint-light);
-    }
-    .section-label { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mint); }
   </style>
 </head>
 <body>
@@ -422,40 +267,14 @@
 
 
 <script>
-  // ─── Sanity config ─────────────────────────────────────────────────────────
-  // Replace YOUR_PROJECT_ID with your actual Sanity project ID after setup.
-  // Get it from: https://sanity.io/manage → your project → Settings → API
-  const SANITY_PROJECT_ID = 'sgqr07bo';
-  const SANITY_DATASET    = 'production';
+  // ─── Substack config ───────────────────────────────────────────────────────
+  const SUBSTACK_RSS = 'https://girardmiller.substack.com/feed';
 
-  const SANITY_CONFIGURED = SANITY_PROJECT_ID !== 'YOUR_PROJECT_ID';
-
-  // ─── Fallback posts (shown when Sanity is not yet configured) ──────────────
+  // ─── Fallback posts ────────────────────────────────────────────────────────
   const FALLBACK_POSTS = [
-    {
-      _id: '1',
-      title: 'What does it mean to truly understand something?',
-      slug: { current: 'what-does-it-mean-to-truly-understand' },
-      category: 'Cognitive Therapy',
-      excerpt: 'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience — and how therapists can support that shift.',
-      publishedAt: '2026-02-18',
-    },
-    {
-      _id: '2',
-      title: 'The mediating practitioner: a new model for therapeutic presence',
-      slug: { current: 'the-mediating-practitioner' },
-      category: 'Therapist Training',
-      excerpt: 'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators — bridging stimulus and response with intentional care.',
-      publishedAt: '2026-01-30',
-    },
-    {
-      _id: '3',
-      title: 'Cognitive modifiability across the lifespan: what the evidence shows',
-      slug: { current: 'cognitive-modifiability-across-the-lifespan' },
-      category: 'Research',
-      excerpt: 'A survey of current research on structural cognitive modifiability — the evidence that the brain retains significant plasticity well into adulthood, and what this means for therapeutic practice.',
-      publishedAt: '2026-01-09',
-    },
+    { _id:'1', title:'What does it mean to truly understand something?', link:'#', category:'Cognitive Therapy', excerpt:'Insight is more than information. It is the moment when understanding transforms from received knowledge into lived experience, and how therapists can support that shift.', publishedAt:'2026-02-18' },
+    { _id:'2', title:'The mediating practitioner: a new model for therapeutic presence', link:'#', category:'Therapist Training', excerpt:'Drawing on Feuerstein\'s mediated learning experience, we explore how therapists can position themselves as cognitive mediators.', publishedAt:'2026-01-30' },
+    { _id:'3', title:'Cognitive modifiability across the lifespan: what the evidence shows', link:'#', category:'Research', excerpt:'A survey of current research on structural cognitive modifiability and what it means for therapeutic practice.', publishedAt:'2026-01-09' },
   ];
 
   // ─── Category colors ───────────────────────────────────────────────────────
@@ -464,44 +283,48 @@
     const c = cat.toLowerCase();
     if (c.includes('research'))  return '#24594E';
     if (c.includes('training'))  return '#3EA882';
-    return '#89B8CC'; // Cognitive Therapy / default
+    return '#89B8CC';
   }
 
   // ─── Format date ───────────────────────────────────────────────────────────
   function formatDate(iso) {
     if (!iso) return '';
-    const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+    const d = new Date(iso);
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // ─── Sanity fetch ──────────────────────────────────────────────────────────
-  async function sanityFetch(query) {
-    const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${SANITY_DATASET}?query=${encodeURIComponent(query)}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Sanity fetch failed');
-    const json = await res.json();
-    return json.result;
+  // ─── Strip HTML tags ───────────────────────────────────────────────────────
+  function stripHtml(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
   }
 
-  // ─── Sanity image URL ─────────────────────────────────────────────────────
-  function sanityImageUrl(image, width) {
-    if (!image?.asset?._ref) return null;
-    const ref = image.asset._ref; // e.g. "image-abc123-1200x800-jpg"
-    const parts = ref.replace('image-', '').split('-');
-    const ext = parts.pop();
-    const filename = parts.join('-') + '.' + ext;
-    const base = `https://cdn.sanity.io/images/${SANITY_PROJECT_ID}/${SANITY_DATASET}/${filename}`;
-    return width ? base + `?w=${width}&auto=format` : base;
+  // ─── Fetch posts from Substack RSS via rss2json ────────────────────────────
+  async function fetchSubstackPosts() {
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(SUBSTACK_RSS)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('RSS fetch failed');
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error('RSS parse failed');
+    return json.items.map(item => ({
+      _id: item.guid,
+      title: item.title,
+      link: item.link,
+      category: item.categories?.[0] || 'Insight',
+      excerpt: stripHtml(item.description).slice(0, 180).trim() + '…',
+      publishedAt: item.pubDate,
+      author: item.author,
+      thumbnail: item.thumbnail || item.enclosure?.link || null,
+    }));
   }
 
   // ─── Build card HTML ───────────────────────────────────────────────────────
   function buildCard(post) {
-    const slug  = typeof post.slug === 'string' ? post.slug : (post.slug?.current || '');
     const color = categoryColor(post.category);
-    const imgUrl = sanityImageUrl(post.mainImage, 600);
     return `
       <article class="blog-card">
-        ${imgUrl ? `<img class="blog-card-img" src="${imgUrl}" alt="${post.title}" loading="lazy">` : '<span class="blog-card-img-placeholder"></span>'}
+        ${post.thumbnail ? `<img class="blog-card-img" src="${post.thumbnail}" alt="${post.title}" loading="lazy">` : '<span class="blog-card-img-placeholder"></span>'}
         <div class="blog-card-inner">
           <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
           <h3>${post.title}</h3>
@@ -512,7 +335,7 @@
             <span class="blog-date">${formatDate(post.publishedAt)}</span>
             ${post.author ? `<span style="font-size:0.75rem;color:#24594E;font-weight:500;opacity:0.7;">${post.author}</span>` : ''}
           </div>
-          <a href="./post.html?slug=${slug}" class="blog-read-more">
+          <a href="${post.link}" target="_blank" rel="noopener" class="blog-read-more">
             Read more
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 8h10M9 4l4 4-4 4"/>
@@ -554,13 +377,7 @@
   // ─── Init ──────────────────────────────────────────────────────────────────
   async function init() {
     try {
-      if (SANITY_CONFIGURED) {
-        const query = `*[_type == "post"] | order(publishedAt desc) { _id, title, "slug": slug.current, "category": categories[0]->title, "author": author->name, excerpt, publishedAt, mainImage }`;
-        allPosts = await sanityFetch(query);
-      } else {
-        // Sanity not yet set up — use fallback placeholder posts
-        allPosts = FALLBACK_POSTS;
-      }
+      allPosts = await fetchSubstackPosts();
     } catch (e) {
       allPosts = FALLBACK_POSTS;
     }

@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us — Insight Center for Cognitive Development</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css">
   <script>
     tailwind.config = {
       theme: {
@@ -28,82 +26,8 @@
     };
   </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      --teal:      #24594E;
-      --teal-dark: #1a4038;
-      --mint:      #3EA882;
-      --mint-light:#8ED3AE;
-      --sky:       #89B8CC;
-      --offwhite:  #F7F6F2;
-      --ink:       #1c2e2a;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--offwhite);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── Nav ───────────────────────────────── */
-    #nav {
-      background: rgba(247,246,242,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(36,89,78,0.08);
-    }
-
-    .nav-link {
-      color: var(--teal);
-      font-weight: 500;
-      font-size: 0.875rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      opacity: 0.75;
-      transition: opacity 0.2s ease;
-    }
-    .nav-link:hover { opacity: 1; }
-    .nav-link.active { opacity: 1; }
-    .nav-link:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 2px; }
-
-    .btn-nav {
-      background: var(--teal);
-      color: #fff;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 0.5rem 1.25rem;
-      border-radius: 100px;
-      transition: background 0.2s ease, transform 0.15s ease;
-    }
-    .btn-nav:hover  { background: var(--mint); transform: translateY(-1px); }
-    .btn-nav:active { transform: translateY(0); }
-    .btn-nav:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
-
-    /* ─── Eyebrow / labels ──────────────────── */
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--mint);
-    }
-
-    .section-label {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--mint);
-    }
+    /* ─── Eyebrow override (about uses var(--mint)) ─────── */
+    .eyebrow { color: var(--mint); }
 
     h1.display {
       font-family: 'DM Serif Display', Georgia, serif;
@@ -112,85 +36,6 @@
       letter-spacing: -0.025em;
       color: #fff;
     }
-
-    h2.section-title {
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: clamp(1.875rem, 3vw, 2.625rem);
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: var(--teal);
-    }
-
-    /* ─── Scroll reveal ─────────────────────── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-    .reveal-delay-4 { transition-delay: 0.4s; }
-
-    /* ─── Nav Dropdown ──────────────────────── */
-    .nav-dropdown-wrap { position: relative; }
-    .nav-dropdown-trigger {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      color: var(--teal); font-weight: 500; font-size: 0.875rem;
-      letter-spacing: 0.03em; text-transform: uppercase;
-      opacity: 0.75; transition: opacity 0.2s ease;
-      cursor: pointer; background: none; border: none; padding: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-    .nav-dropdown-trigger:hover,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-trigger { opacity: 1; }
-    .nav-dropdown-chevron { transition: transform 0.2s ease; }
-    .nav-dropdown-wrap:hover .nav-dropdown-chevron,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-chevron { transform: rotate(180deg); }
-    .nav-dropdown-panel {
-      position: absolute; top: calc(100% + 10px); left: 50%;
-      width: 230px; background: #fff;
-      border: 1px solid rgba(36,89,78,0.09); border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(36,89,78,0.12), 0 2px 8px rgba(36,89,78,0.06);
-      padding: 0.4rem; z-index: 200;
-      opacity: 0; pointer-events: none;
-      transform: translateX(-50%) translateY(-6px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
-    }
-    .nav-dropdown-panel::before { content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
-    .nav-dropdown-wrap:hover .nav-dropdown-panel,
-    .nav-dropdown-wrap:focus-within .nav-dropdown-panel {
-      opacity: 1; pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
-    }
-    .nav-dropdown-item {
-      display: block; padding: 0.7rem 0.875rem;
-      border-radius: 8px; text-decoration: none;
-      transition: background 0.15s ease;
-    }
-    .nav-dropdown-item:hover { background: rgba(36,89,78,0.05); }
-    .nav-dropdown-item-name { font-size: 0.875rem; font-weight: 600; color: var(--teal); }
-    .nav-dropdown-item-desc { font-size: 0.75rem; color: #5a7570; margin-top: 0.125rem; line-height: 1.4; }
-    .mobile-sub-link {
-      display: block; padding: 0.5rem 0 0.5rem 1rem;
-      font-size: 0.8125rem; font-weight: 500; color: var(--teal);
-      letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.65;
-      transition: opacity 0.2s ease; text-decoration: none;
-    }
-    .mobile-sub-link:hover { opacity: 1; }
-
-    /* ─── Footer ────────────────────────────── */
-    .footer-link {
-      font-size: 0.875rem;
-      color: rgba(255,255,255,0.55);
-      transition: color 0.2s ease;
-    }
-    .footer-link:hover { color: rgba(255,255,255,0.9); }
-    .footer-link:focus-visible { outline: 2px solid var(--mint-light, #8ED3AE); outline-offset: 3px; border-radius: 2px; }
 
     /* ─── Page-specific ─────────────────────── */
     .value-card {
@@ -343,7 +188,7 @@
       A science of the mind<br/>in service of the <em style="color:#8ED3AE;">person.</em>
     </h1>
     <p class="reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.85;color:rgba(255,255,255,0.72);max-width:580px;margin-top:1.5rem;">
-      The Insight Center for Cognitive Development exists because we believe that every person has a capacity for growth that is rarely fully realized — and that the right conditions can change that.
+      The Insight Center for Cognitive Development exists because we believe that every person has a capacity for growth that is rarely fully realized, and that the right conditions can change that.
     </p>
   </div>
 </section>
@@ -361,13 +206,13 @@
       </div>
       <div class="reveal reveal-delay-1">
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
-          We work at the intersection of cognitive science, philosophy, and therapeutic practice. Our mission is to help individuals — and the professionals who serve them — develop the foundational capacities of clear thinking, sound judgment, and genuine self-understanding.
+          We work at the intersection of cognitive science, philosophy, and therapeutic practice. Our mission is to help individuals, and the professionals who serve them, develop the foundational capacities of clear thinking, sound judgment, and genuine self-understanding.
         </p>
         <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-top:1.125rem;">
-          We believe that insight — not information — is the engine of lasting change. Every program we offer is designed to cultivate that moment of genuine understanding that transforms how a person sees and engages with the world.
+          We believe that insight, not information, is the engine of lasting change. Every program we offer is designed to cultivate that moment of genuine understanding that transforms how a person sees and engages with the world.
         </p>
         <blockquote style="border-left:3px solid #3EA882;padding:1rem 0 1rem 1.25rem;margin-top:2rem;">
-          <p style="font-family:'DM Serif Display',serif;font-size:1.1875rem;font-style:italic;color:#24594E;line-height:1.55;">"Cognitive capacity is not fixed — it is modifiable, trainable, and expandable at every stage of life."</p>
+          <p style="font-family:'DM Serif Display',serif;font-size:1.1875rem;font-style:italic;color:#24594E;line-height:1.55;">"Cognitive capacity is not fixed, it is modifiable, trainable, and expandable at every stage of life."</p>
         </blockquote>
       </div>
     </div>
@@ -396,7 +241,7 @@
         <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#24594E;margin-bottom:1rem;">Foundational Thinker</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.625rem;color:#24594E;letter-spacing:-0.01em;margin-bottom:1rem;line-height:1.2;">Bernard Lonergan</h3>
         <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1rem;">
-          Lonergan's account of human knowing — the four levels of intentional consciousness (experience, understanding, judgment, decision) — forms the philosophical backbone of our work. His insight into what it means to "have an insight" gives us a precise vocabulary for the cognitive events we aim to facilitate.
+          Lonergan's account of human knowing, the four levels of intentional consciousness (experience, understanding, judgment, decision), forms the philosophical backbone of our work. His insight into what it means to "have an insight" gives us a precise vocabulary for the cognitive events we aim to facilitate.
         </p>
         <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;">
           Rather than treating cognition as information processing, Lonergan grounds it in the dynamic structure of the human spirit as it reaches toward truth and value. This framework allows us to address thinking at its deepest level.
@@ -416,10 +261,10 @@
         <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#24594E;margin-bottom:1rem;">Foundational Thinker</div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.625rem;color:#24594E;letter-spacing:-0.01em;margin-bottom:1rem;line-height:1.2;">Reuven Feuerstein</h3>
         <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;margin-bottom:1rem;">
-          Feuerstein's theory of Structural Cognitive Modifiability — the idea that intelligence is not a fixed trait but a dynamic, modifiable structure — is at the heart of our clinical practice. His concept of Mediated Learning Experience (MLE) provides us with the practical framework for facilitating cognitive change.
+          Feuerstein's theory of Structural Cognitive Modifiability, the idea that intelligence is not a fixed trait but a dynamic, modifiable structure, is at the heart of our clinical practice. His concept of Mediated Learning Experience (MLE) provides us with the practical framework for facilitating cognitive change.
         </p>
         <p style="font-size:0.9375rem;line-height:1.8;color:#4a6960;">
-          Through intentional mediation — positioning ourselves between the learner and experience with purpose, meaning, and transcendence — our practitioners help clients develop the cognitive tools they need to engage more effectively with their world.
+          Through intentional mediation, positioning ourselves between the learner and experience with purpose, meaning, and transcendence, our practitioners help clients develop the cognitive tools they need to engage more effectively with their world.
         </p>
         <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(36,89,78,0.08);">
           <div style="font-size:0.8125rem;font-weight:600;color:#24594E;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.5rem;">Key Concepts</div>
@@ -465,7 +310,7 @@
           </svg>
         </div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.1875rem;color:#24594E;margin-bottom:0.625rem;">Insight, Not Information</h3>
-        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Real change comes from the inside. We create conditions for genuine insight — the kind that permanently reshapes how a person thinks.</p>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">Real change comes from the inside. We create conditions for genuine insight, the kind that permanently reshapes how a person thinks.</p>
       </div>
 
       <div class="value-card reveal reveal-delay-3">
@@ -475,7 +320,7 @@
           </svg>
         </div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.1875rem;color:#24594E;margin-bottom:0.625rem;">Relationship as Method</h3>
-        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">The therapeutic and educational relationship is not just a context — it is the medium through which cognitive development occurs. We take it seriously.</p>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">The therapeutic and educational relationship is not just a context, it is the medium through which cognitive development occurs. We take it seriously.</p>
       </div>
 
       <div class="value-card reveal reveal-delay-4">
@@ -485,7 +330,7 @@
           </svg>
         </div>
         <h3 style="font-family:'DM Serif Display',serif;font-size:1.1875rem;color:#24594E;margin-bottom:0.625rem;">Rigor and Compassion</h3>
-        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">We hold ourselves to the highest standards of theory and practice — not because rigor and care are in tension, but because they are inseparable.</p>
+        <p style="font-size:0.875rem;line-height:1.75;color:#5a7570;">We hold ourselves to the highest standards of theory and practice, not because rigor and care are in tension, but because they are inseparable.</p>
       </div>
 
     </div>

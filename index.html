@@ -370,9 +370,9 @@
 ════════════════════════════════════════════ -->
 <section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28" style="min-height:90vh;display:flex;align-items:center;background-image:url('brand_assets/about-hero.jpg');background-size:cover;background-position:center top;">
   <!-- Dark teal gradient overlay -->
-  <div style="position:absolute;inset:0;background:linear-gradient(105deg, rgba(15,38,34,0.93) 0%, rgba(18,46,42,0.75) 45%, rgba(24,58,52,0.25) 100%);pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(15,38,34,0.82) 0%, rgba(15,38,34,0.5) 35%, rgba(15,38,34,0.0) 65%);pointer-events:none;"></div>
   <!-- Subtle color wash on image -->
-  <div style="position:absolute;inset:0;background:rgba(36,89,78,0.15);mix-blend-mode:multiply;pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(36,89,78,0.15) 0%, rgba(36,89,78,0.02) 55%, rgba(36,89,78,0.0) 100%);mix-blend-mode:multiply;pointer-events:none;"></div>
 
   <div class="max-w-6xl mx-auto px-6 w-full relative z-10">
     <div class="max-w-2xl">
@@ -420,12 +420,12 @@
       <div class="reveal">
         <div class="section-label mb-4">Our Foundation</div>
         <h2 class="section-title">Rooted in the science of how minds grow.</h2>
-      </div>
-      <div class="reveal reveal-delay-1">
-        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;">
+        <p style="font-size:1.0625rem;line-height:1.85;color:#4a6960;margin-top:1.25rem;">
           The Insight Center bridges theory and practice in the service of human development. We believe that cognitive capacity is not fixed. It is modifiable, trainable, and expandable at every stage of life.
         </p>
-
+      </div>
+      <div class="reveal reveal-delay-1">
+        <img src="brand_assets/Downs_Teen.jpg" alt="Teacher working with a student" style="width:100%;height:420px;object-fit:cover;border-radius:12px;display:block;">
       </div>
     </div>
   </div>
@@ -817,20 +817,27 @@
   async function loadHomeBlog() {
     let posts;
     try {
-      const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(SUBSTACK_RSS)}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      if (json.status !== 'ok') throw new Error('RSS parse failed');
-      posts = json.items.slice(0, 3).map(item => ({
-        _id: item.guid,
-        title: item.title,
-        link: item.link,
-        category: item.categories?.[0] || 'Insight',
-        excerpt: blogStripHtml(item.description).slice(0, 180).trim() + '…',
-        publishedAt: item.pubDate,
-        author: item.author,
-        thumbnail: item.thumbnail || item.enclosure?.link || null,
-      }));
+      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(SUBSTACK_RSS)}`);
+      if (!res.ok) throw new Error('fetch failed');
+      const xml = await res.text();
+      const doc = new DOMParser().parseFromString(xml, 'text/xml');
+      const items = [...doc.querySelectorAll('item')];
+      if (!items.length) throw new Error('no items');
+      posts = items.slice(0, 3).map(item => {
+        const get = tag => item.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+        const enclosure = item.getElementsByTagName('enclosure')[0];
+        const thumb = item.getElementsByTagName('thumbnail')[0];
+        return {
+          _id: get('guid'),
+          title: get('title'),
+          link: get('link'),
+          category: get('category') || 'Insight',
+          excerpt: blogStripHtml(get('description')).slice(0, 180).trim() + '…',
+          publishedAt: get('pubDate'),
+          author: get('author') || get('creator') || '',
+          thumbnail: thumb?.getAttribute('url') || enclosure?.getAttribute('url') || null,
+        };
+      });
     } catch (e) {
       posts = FALLBACK_POSTS;
     }

@@ -296,7 +296,7 @@
 
   // ─── Fetch posts from Substack RSS ────────────────────────────────────────
   async function fetchSubstackPosts() {
-    const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(SUBSTACK_RSS)}`);
+    const res = await fetch('/api/rss');
     if (!res.ok) throw new Error('RSS fetch failed');
     const xml = await res.text();
     const doc = new DOMParser().parseFromString(xml, 'text/xml');

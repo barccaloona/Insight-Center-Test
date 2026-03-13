@@ -147,7 +147,7 @@
       Ideas worth<br/><em style="color:#8ED3AE;">thinking about.</em>
     </h1>
     <p class="reveal reveal-delay-2" style="font-size:1.0625rem;line-height:1.8;color:rgba(255,255,255,0.72);max-width:520px;margin-top:1.25rem;">
-      Writing from our team on cognitive development, therapeutic practice, education, and the philosophy of mind.
+      Substack posts from our team on cognitive development, therapeutic practice, education, and the philosophy of mind.
     </p>
   </div>
 </section>
@@ -158,14 +158,6 @@
 ════════════════════════════════════════════ -->
 <section style="padding:4.5rem 1.5rem 6rem;">
   <div class="max-w-6xl mx-auto">
-
-    <!-- Filter buttons -->
-    <div id="filterBar" class="flex flex-wrap gap-3 mb-10">
-      <button class="filter-btn active" data-category="all">All Posts</button>
-      <button class="filter-btn" data-category="Cognitive Therapy">Cognitive Therapy</button>
-      <button class="filter-btn" data-category="Therapist Training">Therapist Training</button>
-      <button class="filter-btn" data-category="Research">Research</button>
-    </div>
 
     <!-- Posts grid -->
     <div id="postsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -321,12 +313,10 @@
 
   // ─── Build card HTML ───────────────────────────────────────────────────────
   function buildCard(post) {
-    const color = categoryColor(post.category);
     return `
       <article class="blog-card">
         ${post.thumbnail ? `<img class="blog-card-img" src="${post.thumbnail}" alt="${post.title}" loading="lazy">` : '<span class="blog-card-img-placeholder"></span>'}
         <div class="blog-card-inner">
-          <span class="blog-tag" style="background:${color};">${post.category || 'Insight'}</span>
           <h3>${post.title}</h3>
           <p>${post.excerpt || ''}</p>
         </div>
@@ -347,31 +337,18 @@
   }
 
   // ─── State ─────────────────────────────────────────────────────────────────
-  let allPosts       = [];
-  let activeCategory = 'all';
-
-  function setFilter(cat) {
-    activeCategory = cat;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.category === cat);
-    });
-    renderPosts();
-  }
+  let allPosts = [];
 
   function renderPosts() {
     const grid  = document.getElementById('postsGrid');
     const empty = document.getElementById('emptyState');
-    const filtered = activeCategory === 'all'
-      ? allPosts
-      : allPosts.filter(p => p.category === activeCategory);
-
-    if (filtered.length === 0) {
-      grid.innerHTML  = '';
+    if (allPosts.length === 0) {
+      grid.innerHTML = '';
       empty.style.display = 'block';
       return;
     }
     empty.style.display = 'none';
-    grid.innerHTML = filtered.map(buildCard).join('');
+    grid.innerHTML = allPosts.map(buildCard).join('');
   }
 
   // ─── Init ──────────────────────────────────────────────────────────────────
@@ -383,13 +360,6 @@
     }
     renderPosts();
   }
-
-  // ─── Filter button events ──────────────────────────────────────────────────
-  document.getElementById('filterBar').addEventListener('click', (e) => {
-    if (e.target.classList.contains('filter-btn')) {
-      setFilter(e.target.dataset.category);
-    }
-  });
 
   // ─── Nav / mobile ──────────────────────────────────────────────────────────
   const menuBtn    = document.getElementById('menuBtn');

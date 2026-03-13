@@ -18,8 +18,24 @@ const MIME = {
   '.woff2': 'font/woff2',
 };
 
-http.createServer((req, res) => {
+http.createServer(async (req, res) => {
   const urlPath = req.url.split('?')[0]; // strip query string
+
+  // Proxy /api/rss → Substack feed (mirrors api/rss.js for local dev)
+  if (urlPath === '/api/rss') {
+    try {
+      const upstream = await fetch('https://girardmiller.substack.com/feed', {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; InsightCenter/1.0)' },
+      });
+      const xml = await upstream.text();
+      res.writeHead(upstream.ok ? 200 : 502, { 'Content-Type': 'application/rss+xml; charset=utf-8' });
+      res.end(xml);
+    } catch (err) {
+      res.writeHead(502);
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
   let filePath = path.join(__dirname, urlPath === '/' ? 'index.html' : urlPath);
   const ext = path.extname(filePath);
   const contentType = MIME[ext] || 'text/plain';

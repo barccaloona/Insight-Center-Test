@@ -24,7 +24,7 @@ http.createServer(async (req, res) => {
   // Proxy /api/rss → Substack feed (mirrors api/rss.js for local dev)
   if (urlPath === '/api/rss') {
     try {
-      const upstream = await fetch('https://girardmiller.substack.com/feed', {
+      const upstream = await fetch('https://theinsightcenter1.substack.com/feed', {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; InsightCenter/1.0)' },
       });
       const xml = await upstream.text();

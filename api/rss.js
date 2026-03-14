@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     if (!upstream.ok) throw new Error(`upstream ${upstream.status}`);
     const xml = await upstream.text();
     res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).send(xml);
   } catch (err) {

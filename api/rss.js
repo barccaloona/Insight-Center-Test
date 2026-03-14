@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const FEED = 'https://girardmiller.substack.com/feed';
+  const FEED = 'https://theinsightcenter1.substack.com/feed';
   try {
     const upstream = await fetch(FEED, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; InsightCenter/1.0)' },

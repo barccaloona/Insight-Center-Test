@@ -341,3 +341,17 @@ h2.section-title {
 }
 .blog-read-more:hover { gap: 0.55rem; }
 .blog-read-more:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
+
+
+/* ─── Hero Photo – Mobile subject centering ─────────────────────── */
+/* On desktop, subjects sit on the right with text overlaid left.    */
+/* On mobile, shift background-position to keep subjects visible.    */
+@media (max-width: 640px) {
+  /* index.html full-bleed section bg */
+  #hero                  { background-position: right top    !important; }
+  /* subpage photo layer divs */
+  .hero-photo-about      { background-position: 70% center  !important; }
+  .hero-photo-therapy    { background-position: right 30%   !important; }
+  .hero-photo-training   { background-position: right 35%   !important; }
+  .hero-photo-consulting { background-position: 65% center  !important; }
+}

@@ -348,10 +348,10 @@ h2.section-title {
 /* On mobile, shift background-position to keep subjects visible.    */
 @media (max-width: 640px) {
   /* index.html full-bleed section bg */
-  #hero                  { background-position: 90% top     !important; }
+  #hero                  { background-position: right top    !important; }
   /* subpage photo layer divs */
   .hero-photo-about      { background-position: 70% center  !important; }
-  .hero-photo-therapy    { background-position: right 40%   !important; }
-  .hero-photo-training   { background-position: right 45%   !important; }
-  .hero-photo-consulting { background-position: 68% center  !important; }
+  .hero-photo-therapy    { background-position: right 20%   !important; }
+  .hero-photo-training   { background-position: right 25%   !important; }
+  .hero-photo-consulting { background-position: 62% center  !important; }
 }

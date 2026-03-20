@@ -351,7 +351,7 @@ h2.section-title {
   #hero                  { background-position: right top    !important; }
   /* subpage photo layer divs */
   .hero-photo-about      { background-position: 70% center  !important; }
-  .hero-photo-therapy    { background-position: right 20%   !important; }
-  .hero-photo-training   { background-position: right 25%   !important; }
+  .hero-photo-therapy    { background-position: 75% 20%     !important; }
+  .hero-photo-training   { background-position: 75% 25%     !important; }
   .hero-photo-consulting { background-position: 62% center  !important; }
 }

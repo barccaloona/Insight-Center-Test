@@ -87,6 +87,11 @@
     }
     .methodology-block.m1::before { background: var(--teal); }
     .methodology-block.m2::before { background: var(--sky); }
+
+    @media (max-width: 767px) {
+      .hero-photo-about { background-position: 42% 65% !important; }
+      .page-hero p { max-width: 75% !important; }
+    }
   </style>
 </head>
 <body>
@@ -164,18 +169,18 @@
 <!-- ═══════════════════════════════════════════
      PAGE HERO
 ════════════════════════════════════════════ -->
-<section style="background:var(--teal);position:relative;overflow:hidden;padding:8rem 1.5rem 5rem;">
+<section class="page-hero" style="background:var(--teal);position:relative;overflow:hidden;padding:8rem 1.5rem 5rem;">
   <!-- Hero photo -->
   <div class="hero-photo-about" style="position:absolute;inset:0;background-image:url('brand_assets/Man_and_daughter.png');background-size:cover;background-position:center;pointer-events:none;"></div>
   <!-- Dark overlay so text stays readable -->
   <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(26,64,56,0.88) 0%, rgba(26,64,56,0.55) 50%, rgba(26,64,56,0.2) 100%);pointer-events:none;"></div>
 
-  <div class="max-w-6xl mx-auto relative z-10">
+  <div class="max-w-6xl mx-auto relative z-10 hero-content">
     <div class="eyebrow mb-5 reveal" style="color:#8ED3AE;">
       <span style="display:inline-block;width:1.5rem;height:1.5px;background:#8ED3AE;margin-right:0.5rem;vertical-align:middle;"></span>
       Our Story
     </div>
-    <h1 class="display reveal reveal-delay-1" style="max-width:680px;">
+    <h1 class="display reveal reveal-delay-1 hero-title" style="max-width:680px;">
       A science of the mind<br/>in service of the <em style="color:#8ED3AE;">person.</em>
     </h1>
     <p class="reveal reveal-delay-2" style="font-size:1.125rem;line-height:1.85;color:rgba(255,255,255,0.72);max-width:580px;margin-top:1.5rem;">

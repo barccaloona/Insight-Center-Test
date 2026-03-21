@@ -282,6 +282,15 @@
 
     /* ─── Footer ────────────────────────────── */
     #footer { background: var(--teal-dark, #1a4038); }
+
+    /* ─── Hero background position ──────────── */
+    #hero { background-position: center top; }
+    @media (max-width: 640px) {
+      #hero {
+        background-image: url('brand_assets/hero_boy_mobile.jpg') !important;
+        background-position: center top !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -359,7 +368,7 @@
 <!-- ═══════════════════════════════════════════
      HERO
 ════════════════════════════════════════════ -->
-<section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28" style="min-height:90vh;display:flex;align-items:center;background-image:url('brand_assets/about-hero.jpg');background-size:cover;background-position:center top;">
+<section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-28" style="min-height:90vh;display:flex;align-items:center;background-image:url('brand_assets/about-hero.jpg');background-size:cover;">
   <!-- Dark teal gradient overlay -->
   <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(15,38,34,0.82) 0%, rgba(15,38,34,0.5) 35%, rgba(15,38,34,0.0) 65%);pointer-events:none;"></div>
   <!-- Subtle color wash on image -->

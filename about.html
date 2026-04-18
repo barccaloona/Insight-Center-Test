@@ -87,6 +87,12 @@
     }
     .methodology-block.m1::before { background: var(--teal); }
     .methodology-block.m2::before { background: var(--sky); }
+    .methodology-block.m3::before { background: var(--mint); }
+
+    @media (max-width: 767px) {
+      .hero-photo-about { background-position: 42% 65% !important; }
+      .page-hero p { max-width: 75% !important; }
+    }
   </style>
 </head>
 <body>
@@ -222,7 +228,7 @@
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-8">
+    <div class="grid md:grid-cols-3 gap-8">
 
       <!-- Lonergan -->
       <div class="methodology-block m1 reveal reveal-delay-1">
@@ -264,6 +270,21 @@
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
           </a>
         </div>
+      </div>
+
+      <!-- Bandura -->
+      <div class="methodology-block m3 reveal reveal-delay-3">
+        <div style="font-size:0.6875rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#24594E;margin-bottom:0.5rem;">Foundational Thinker</div>
+        <h3 style="font-family:'DM Serif Display',serif;font-size:1.625rem;color:#24594E;letter-spacing:-0.01em;line-height:1.2;margin-bottom:1.25rem;">Albert Bandura</h3>
+        <div style="width:100%;border-radius:8px;overflow:hidden;margin-bottom:1.25rem;box-shadow:0 2px 10px rgba(36,89,78,0.08);">
+          <img src="brand_assets/Bandura%20at%20Blackboard.jpeg" alt="Albert Bandura" style="width:100%;height:auto;display:block;">
+        </div>
+        <p style="font-size:1.125rem;line-height:1.8;color:#4a6960;margin-bottom:1rem;">
+          Bandura's theory of self-efficacy — the conviction that one is capable of organizing and executing the actions required to meet a given challenge — provides a critical bridge between cognitive structure and motivated action. Where Lonergan illuminates the structure of knowing and Feuerstein demonstrates its modifiability, Bandura explains why a person moves, or fails to move, toward growth in the first place. His social cognitive theory grounds human development not in fixed traits but in the dynamic interplay of thought, behavior, and environment.
+        </p>
+        <p style="font-size:1.125rem;line-height:1.8;color:#4a6960;">
+          For our practitioners, Bandura's framework sharpens the clinical question: it is not enough to build cognitive capacity if a client does not believe that capacity belongs to them. Through intentional mediation, we attend not only to thinking skills but to the felt sense of agency that makes those skills worth using. Strengthening self-efficacy is, in this sense, inseparable from the broader work of cognitive development.
+        </p>
       </div>
 
     </div>

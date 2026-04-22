@@ -36,7 +36,7 @@ http.createServer(async (req, res) => {
     }
     return;
   }
-  let filePath = path.join(__dirname, urlPath === '/' ? 'index.html' : urlPath);
+  let filePath = path.join(__dirname, urlPath === '/' ? 'index.html' : decodeURIComponent(urlPath));
   const ext = path.extname(filePath);
   const contentType = MIME[ext] || 'text/plain';
 

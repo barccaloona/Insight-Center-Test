@@ -717,14 +717,14 @@
 
       <!-- Form -->
       <div class="reveal reveal-delay-1">
-        <form onsubmit="return false;" style="background:#fff;padding:2rem;border-radius:14px;border:1px solid rgba(36,89,78,0.08);box-shadow:0 4px 24px rgba(36,89,78,0.07);">
+        <form id="contact-form" style="background:#fff;padding:2rem;border-radius:14px;border:1px solid rgba(36,89,78,0.08);box-shadow:0 4px 24px rgba(36,89,78,0.07);">
           <div class="form-group">
             <label class="form-label" for="name">Name</label>
-            <input class="form-input" type="text" id="name" name="name" placeholder="Your full name" autocomplete="name"/>
+            <input class="form-input" type="text" id="name" name="name" placeholder="Your full name" autocomplete="name" required/>
           </div>
           <div class="form-group">
             <label class="form-label" for="email">Email</label>
-            <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
+            <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required/>
           </div>
           <div class="form-group">
             <label class="form-label" for="subject">Interested In</label>
@@ -741,8 +741,43 @@
             <label class="form-label" for="message">Message</label>
             <textarea class="form-textarea" id="message" name="message" placeholder="Tell us a little about what you're looking for…"></textarea>
           </div>
-          <button type="submit" class="btn-submit">Send Message</button>
+          <button type="submit" class="btn-submit" id="contact-submit">Send Message</button>
+          <div id="contact-status" style="display:none;margin-top:1rem;padding:0.875rem 1rem;border-radius:8px;font-size:0.9rem;font-weight:500;"></div>
         </form>
+        <script>
+          document.getElementById('contact-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('contact-submit');
+            const status = document.getElementById('contact-status');
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+            try {
+              const res = await fetch('https://formspree.io/f/xdajkkzd', {
+                method: 'POST',
+                body: new FormData(this),
+                headers: { 'Accept': 'application/json' }
+              });
+              if (res.ok) {
+                this.reset();
+                status.style.display = 'block';
+                status.style.background = 'rgba(36,89,78,0.07)';
+                status.style.color = '#24594E';
+                status.textContent = 'Thank you — we\'ll be in touch soon.';
+                btn.textContent = 'Send Message';
+                btn.disabled = false;
+              } else {
+                throw new Error();
+              }
+            } catch {
+              status.style.display = 'block';
+              status.style.background = 'rgba(200,50,50,0.07)';
+              status.style.color = '#c03030';
+              status.textContent = 'Something went wrong. Please try again or email us directly.';
+              btn.textContent = 'Send Message';
+              btn.disabled = false;
+            }
+          });
+        </script>
       </div>
 
     </div>

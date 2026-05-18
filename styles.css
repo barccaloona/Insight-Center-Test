@@ -343,15 +343,24 @@ h2.section-title {
 .blog-read-more:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 3px; }
 
 
-/* ─── Hero Photo – Mobile subject centering ─────────────────────── */
-/* On desktop, subjects sit on the right with text overlaid left.    */
+/* ─── Hero Photo – subject centering ────────────────────────────── */
+.hero-photo-training { background-position: center 35%; }
+
 /* On mobile, shift background-position to keep subjects visible.    */
 @media (max-width: 640px) {
+  /* Taller hero on subpages + hide h1 */
+  .page-hero             { height: 72vh; }
+  .hero-content p        { margin-top: 20vh !important; }
+  .hero-title            { display: none; }
+  /* Pin button + paragraph at consistent positions across all subpage heroes */
+  .hero-content          { height: calc(72vh - 13rem); position: relative; }
+  .hero-content p        { position: absolute; bottom: 4.5rem; left: 0; right: 0; margin-top: 0 !important; }
+  .hero-content > div:last-child { position: absolute; bottom: 0; left: 0; }
   /* index.html full-bleed section bg */
   #hero                  { background-position: right top    !important; }
   /* subpage photo layer divs */
   .hero-photo-about      { background-position: 70% center  !important; }
-  .hero-photo-therapy    { background-position: 75% 20%     !important; }
-  .hero-photo-training   { background-position: 75% 25%     !important; }
+  .hero-photo-therapy    { background-position: 82% 20%     !important; }
+  .hero-photo-training   { bottom: -150px !important; background-position: 82% center !important; }
   .hero-photo-consulting { background-position: 62% center  !important; }
 }

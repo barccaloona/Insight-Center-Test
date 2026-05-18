@@ -296,8 +296,8 @@
       width: var(--size);
       height: var(--size);
       border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.55);
+      background: rgba(62,168,130,0.25);
+      border: 1.5px solid rgba(142,211,174,0.7);
       color: #fff;
       display: inline-flex;
       align-items: center;
@@ -319,73 +319,73 @@
       inset: -10px;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.18);
-      animation: hero-pulse 2.6s cubic-bezier(0.22,1,0.36,1) infinite;
+      opacity: 0;
+      animation: hero-pulse 2.6s cubic-bezier(0.22,1,0.36,1) infinite 0.8s;
       pointer-events: none;
     }
     .play-button::after {
       border-color: rgba(255,255,255,0.12);
-      animation-delay: 1.3s;
+      animation-delay: 2.1s;
     }
     @keyframes hero-pulse {
       0%   { transform: scale(1);   opacity: 0.8; }
       70%  { transform: scale(1.4); opacity: 0; }
       100% { transform: scale(1.4); opacity: 0; }
     }
-    .play-button:hover { transform: scale(1.06); background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.85); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .play-button:hover { transform: scale(1.06); background: rgba(62,168,130,0.45); border-color: rgba(142,211,174,1); box-shadow: 0 10px 30px rgba(36,89,78,0.4); }
     .play-button:focus-visible { box-shadow: 0 0 0 4px rgba(142,211,174,0.5); }
     .play-button:active { transform: scale(0.98); }
     .play-button svg { width: 28px; height: 28px; transform: translateX(2px); }
 
-    .hero-video {
-      position: absolute;
+    /* ─── Video Overlay ──────────────────────── */
+    .video-overlay {
+      position: fixed;
       inset: 0;
-      z-index: 2;
+      z-index: 200;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .video-overlay.active { opacity: 1; pointer-events: auto; }
+    .video-box {
+      width: 90%;
+      max-width: 1100px;
+      aspect-ratio: 16/9;
+    }
+    .video-box iframe {
       width: 100%;
       height: 100%;
       border: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 1s cubic-bezier(0.22,1,0.36,1);
+      display: block;
     }
-    #hero.is-playing .hero-video { opacity: 1; pointer-events: auto; }
-
-    .video-controls {
+    .video-back-btn {
       position: absolute;
-      bottom: 32px;
-      right: 32px;
-      z-index: 5;
-      display: flex;
-      gap: 10px;
-      opacity: 0;
-      transform: translateY(8px);
-      pointer-events: none;
-      transition: opacity 0.6s ease 0.4s, transform 0.6s ease 0.4s;
-    }
-    #hero.is-playing .video-controls { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .ctrl {
+      top: 24px;
+      right: 24px;
       appearance: none;
-      background: rgba(16,63,58,0.6);
-      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(16,63,58,0.75);
+      border: 1px solid rgba(255,255,255,0.28);
       color: #fff;
-      padding: 9px 14px;
+      padding: 9px 16px;
       border-radius: 100px;
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       cursor: pointer;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: inline-flex;
       align-items: center;
       gap: 8px;
       transition: background 0.2s ease, border-color 0.2s ease;
     }
-    .ctrl:hover { background: rgba(16,63,58,0.85); border-color: rgba(255,255,255,0.45); }
-    .ctrl svg { width: 14px; height: 14px; }
-
-    #hero-content { transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s ease; }
-    #hero.is-playing #hero-content { opacity: 0; transform: translateY(-12px); visibility: hidden; pointer-events: none; }
+    .video-back-btn:hover { background: rgba(16,63,58,0.95); border-color: rgba(255,255,255,0.5); }
+    .video-back-btn svg { width: 13px; height: 13px; }
 
     /* ─── Hero background position ──────────── */
     #hero { background-position: center top; }
@@ -510,16 +510,6 @@
     </div>
   </div>
 
-  <iframe class="hero-video" id="hero-video" src="" data-src="https://www.youtube.com/embed/vDSrYzD_pOM?autoplay=1&rel=0&modestbranding=1" title="The Insight Center" allow="autoplay; encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe>
-
-  <div class="video-controls">
-    <button class="ctrl" id="back-btn" type="button" aria-label="Return to hero">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M13 8H3M7 4L3 8l4 4"/>
-      </svg>
-      Back
-    </button>
-  </div>
 
   <!-- Bottom fade to about section -->
   <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,transparent,rgba(15,38,34,0.6));pointer-events:none;"></div>
@@ -945,67 +935,46 @@
   }, { passive: true });
 </script>
 
+<!-- Video Overlay -->
+<div class="video-overlay" id="video-overlay" role="dialog" aria-modal="true" aria-label="Video player">
+  <div class="video-box">
+    <iframe id="hero-video" src="" data-src="https://www.youtube.com/embed/vDSrYzD_pOM?autoplay=1&rel=0" title="The Insight Center" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+  </div>
+  <button class="video-back-btn" id="back-btn" type="button" aria-label="Close video">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M13 8H3M7 4L3 8l4 4"/>
+    </svg>
+    Back
+  </button>
+</div>
+
 <!-- Hero Video Player -->
 <script>
 (function () {
-  const hero    = document.getElementById('hero');
+  const overlay = document.getElementById('video-overlay');
   const playBtn = document.getElementById('play-btn');
   const backBtn = document.getElementById('back-btn');
   const iframe  = document.getElementById('hero-video');
 
-  function play() {
-    if (hero.classList.contains('is-playing')) return;
+  function open() {
     if (!iframe.getAttribute('src')) iframe.setAttribute('src', iframe.dataset.src);
-    hero.classList.add('is-playing');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 
-  function back() {
-    hero.classList.remove('is-playing');
+  function close() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
     iframe.removeAttribute('src');
   }
 
-  playBtn.addEventListener('click', play);
-  backBtn.addEventListener('click', back);
+  playBtn.addEventListener('click', open);
+  backBtn.addEventListener('click', close);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && hero.classList.contains('is-playing')) back();
+    if (e.key === 'Escape' && overlay.classList.contains('active')) close();
   });
 })();
 </script>
 
-<!-- Vapi Voice Agent -->
-<script>
-  const vapiAssistantId = "YOUR_ASSISTANT_ID";
-  const vapiPublicKey = "YOUR_PUBLIC_KEY";
-  const vapiButtonConfig = {
-    position: "bottom-right",
-    offset: "40px",
-    width: "56px",
-    height: "56px",
-    idle: {
-      color: "#24594E",
-      type: "round",
-      title: "Talk to us",
-      subtitle: "Ask about our services",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/phone.svg",
-    },
-    loading: {
-      color: "#3EA882",
-      type: "round",
-      title: "Connecting...",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/loader.svg",
-    },
-    active: {
-      color: "#3EA882",
-      type: "round",
-      title: "End call",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/phone-off.svg",
-    },
-  };
-</script>
-<script
-  src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"
-  defer
-  onload="window.vapiSDK.run({ apiKey: vapiPublicKey, assistant: vapiAssistantId, config: vapiButtonConfig })"
-></script>
 </body>
 </html>

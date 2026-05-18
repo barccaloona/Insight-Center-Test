@@ -300,40 +300,5 @@
   });
 </script>
 
-<!-- Vapi Voice Agent -->
-<script>
-  const vapiAssistantId = "YOUR_ASSISTANT_ID";
-  const vapiPublicKey = "YOUR_PUBLIC_KEY";
-  const vapiButtonConfig = {
-    position: "bottom-right",
-    offset: "40px",
-    width: "56px",
-    height: "56px",
-    idle: {
-      color: "#24594E",
-      type: "round",
-      title: "Talk to us",
-      subtitle: "Ask about our services",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/phone.svg",
-    },
-    loading: {
-      color: "#3EA882",
-      type: "round",
-      title: "Connecting...",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/loader.svg",
-    },
-    active: {
-      color: "#3EA882",
-      type: "round",
-      title: "End call",
-      icon: "https://unpkg.com/lucide-static@0.321.0/icons/phone-off.svg",
-    },
-  };
-</script>
-<script
-  src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"
-  defer
-  onload="window.vapiSDK.run({ apiKey: vapiPublicKey, assistant: vapiAssistantId, config: vapiButtonConfig })"
-></script>
 </body>
 </html>

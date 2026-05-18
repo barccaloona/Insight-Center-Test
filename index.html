@@ -280,6 +280,25 @@
     .btn-submit:active { transform: translateY(0); }
     .btn-submit:focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; border-radius: 8px; }
 
+    /* ─── Contact thank-you overlay ─────────── */
+    #contact-thankyou {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: #F7F6F2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      text-align: center;
+      padding: 2rem;
+    }
+    #contact-thankyou.active { opacity: 1; pointer-events: auto; }
+
     /* ─── Footer ────────────────────────────── */
     #footer { background: var(--teal-dark, #1a4038); }
 
@@ -742,15 +761,16 @@
             <textarea class="form-textarea" id="message" name="message" placeholder="Tell us a little about what you're looking for…"></textarea>
           </div>
           <button type="submit" class="btn-submit" id="contact-submit">Send Message</button>
-          <div id="contact-status" style="display:none;margin-top:1rem;padding:0.875rem 1rem;border-radius:8px;font-size:0.9rem;font-weight:500;"></div>
+          <div id="contact-error" style="display:none;margin-top:1rem;padding:0.875rem 1rem;border-radius:8px;font-size:0.9rem;font-weight:500;background:rgba(200,50,50,0.07);color:#c03030;"></div>
         </form>
         <script>
           document.getElementById('contact-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('contact-submit');
-            const status = document.getElementById('contact-status');
+            const err = document.getElementById('contact-error');
             btn.disabled = true;
             btn.textContent = 'Sending…';
+            err.style.display = 'none';
             try {
               const res = await fetch('https://formspree.io/f/xdajkkzd', {
                 method: 'POST',
@@ -758,21 +778,13 @@
                 headers: { 'Accept': 'application/json' }
               });
               if (res.ok) {
-                this.reset();
-                status.style.display = 'block';
-                status.style.background = 'rgba(36,89,78,0.07)';
-                status.style.color = '#24594E';
-                status.textContent = 'Thank you — we\'ll be in touch soon.';
-                btn.textContent = 'Send Message';
-                btn.disabled = false;
+                document.getElementById('contact-thankyou').classList.add('active');
               } else {
                 throw new Error();
               }
             } catch {
-              status.style.display = 'block';
-              status.style.background = 'rgba(200,50,50,0.07)';
-              status.style.color = '#c03030';
-              status.textContent = 'Something went wrong. Please try again or email us directly.';
+              err.style.display = 'block';
+              err.textContent = 'Something went wrong. Please try again or email us directly.';
               btn.textContent = 'Send Message';
               btn.disabled = false;
             }
@@ -969,6 +981,19 @@
     }
   }, { passive: true });
 </script>
+
+<!-- Contact Thank You Overlay -->
+<div id="contact-thankyou" role="dialog" aria-modal="true" aria-label="Message sent">
+  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+    <circle cx="28" cy="28" r="28" fill="rgba(36,89,78,0.1)"/>
+    <path d="M17 28l8 8 14-14" stroke="#24594E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h2 style="font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3rem);color:#24594E;letter-spacing:-0.02em;line-height:1.15;">Thank you.</h2>
+  <p style="font-size:1.125rem;color:#5a7570;max-width:28rem;line-height:1.75;">We've received your message and will be in touch soon.</p>
+  <a href="#hero" onclick="document.getElementById('contact-thankyou').classList.remove('active')" style="margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.5rem;color:#24594E;font-size:0.9rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;border-bottom:1.5px solid rgba(36,89,78,0.3);padding-bottom:2px;transition:border-color 0.2s ease;" onmouseover="this.style.borderColor='#24594E'" onmouseout="this.style.borderColor='rgba(36,89,78,0.3)'">
+    Back to site
+  </a>
+</div>
 
 <!-- Video Overlay -->
 <div class="video-overlay" id="video-overlay" role="dialog" aria-modal="true" aria-label="Video player">

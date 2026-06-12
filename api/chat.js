@@ -35,6 +35,10 @@ function isRateLimited(ip) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // Warmup ping — keeps the serverless function (and the SDK import) hot so
+  // the first real message doesn't pay a cold-start penalty.
+  if (req.body && req.body.warmup) return res.status(204).end();
+
   const ip = ((req.headers['x-forwarded-for'] || '') + '').split(',')[0].trim() || 'unknown';
   if (isRateLimited(ip)) return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' });
 

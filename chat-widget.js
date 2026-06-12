@@ -228,6 +228,7 @@
   // ── SVGs ──────────────────────────────────────────────────────────────────
 
   var SVG = {
+    chat:   '<svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
     close:  '<svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
     person: '<svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
     volOn:  '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
@@ -329,6 +330,13 @@
     '#ic-send:hover{background:#1c4a41}#ic-send:active{transform:scale(.9)}',
     '#ic-send:disabled{background:#c5d5d2;cursor:not-allowed;transform:none}',
 
+    '#ic-voicebtn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;',
+    'background:radial-gradient(circle at 38% 35%,' + MINT + ',' + TEAL + ');color:#fff;',
+    'display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(36,89,78,.3);',
+    'transition:transform .15s,box-shadow .15s}',
+    '#ic-voicebtn:hover{transform:scale(1.08);box-shadow:0 3px 14px rgba(36,89,78,.4)}',
+    '#ic-voicebtn:active{transform:scale(.92)}',
+
     '#ic-voicebar{display:none;padding:10px 12px;background:#fff;border-top:1px solid rgba(36,89,78,.09);justify-content:center;flex-shrink:0}',
     '#ic-panel.voice #ic-voicebar{display:flex}',
     '#ic-endvoice{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:20px;border:1.5px solid #dde8e5;',
@@ -347,7 +355,7 @@
     wrap.id = 'ic-wrap';
     wrap.innerHTML =
       '<button id="ic-btn" aria-label="Open Insight Center Guide">' +
-        '<span class="ic-chat">' + SVG.mic + '</span>' +
+        '<span class="ic-chat">' + SVG.chat + '</span>' +
         '<span class="ic-x">' + SVG.close + '</span>' +
       '</button>' +
       '<div id="ic-panel" role="dialog" aria-label="Insight Center Guide">' +
@@ -373,6 +381,7 @@
         '<div id="ic-bar">' +
           '<textarea id="ic-in" placeholder="Type your question…" rows="1" aria-label="Type your question"></textarea>' +
           '<button id="ic-send" aria-label="Send">' + SVG.send + '</button>' +
+          '<button id="ic-voicebtn" aria-label="Switch to voice" title="Talk to the Guide">' + SVG.mic + '</button>' +
         '</div>' +
         '<div id="ic-voicebar">' +
           '<button id="ic-endvoice">' + SVG.keys + '<span>Type instead</span></button>' +
@@ -417,12 +426,13 @@
   function init() {
     buildDOM();
 
-    var btn     = document.getElementById('ic-btn');
-    var panel   = document.getElementById('ic-panel');
-    var input   = document.getElementById('ic-in');
-    var sendBtn = document.getElementById('ic-send');
-    var endBtn  = document.getElementById('ic-endvoice');
-    var volBtn  = document.getElementById('ic-vol');
+    var btn      = document.getElementById('ic-btn');
+    var panel    = document.getElementById('ic-panel');
+    var input    = document.getElementById('ic-in');
+    var sendBtn  = document.getElementById('ic-send');
+    var voiceBtn = document.getElementById('ic-voicebtn');
+    var endBtn   = document.getElementById('ic-endvoice');
+    var volBtn   = document.getElementById('ic-vol');
 
     btn.addEventListener('click', function () {
       var opening = !panel.classList.contains('open');
@@ -430,13 +440,14 @@
       btn.classList.toggle('open', opening);
       if (opening) {
         if (!greetingDone) { greetingDone = true; botRow(GREETING); }
-        setTimeout(enterVoice, 350);
+        setTimeout(function () { input.focus(); }, 350);
       } else {
         exitVoice();
       }
     });
 
-    if (endBtn) endBtn.addEventListener('click', exitVoice);
+    if (voiceBtn) voiceBtn.addEventListener('click', enterVoice);
+    if (endBtn)   endBtn.addEventListener('click', exitVoice);
 
     sendBtn.addEventListener('click', sendTyped);
     input.addEventListener('keydown', function (e) {

@@ -299,7 +299,7 @@
     wrap.id = 'ic-wrap';
     wrap.innerHTML =
       '<button id="ic-btn" aria-label="Open Insight Center Guide">' +
-        '<span class="ic-chat">' + SVG.chat + '</span>' +
+        '<span class="ic-chat">' + SVG.mic + '</span>' +
         '<span class="ic-x">' + SVG.close + '</span>' +
       '</button>' +
       '<div id="ic-panel" role="dialog" aria-label="Insight Center Guide">' +
@@ -411,8 +411,8 @@
       var display = (pendingFinal + interim).trim();
 
       if (state === 'speaking') {
-        // Interrupt: stop audio if user says anything substantial (2+ words)
-        if (display.split(/\s+/).length >= 2) {
+        // Interrupt only on confirmed final speech (2+ words) — not breaths/interim noise
+        if (newFinal && pendingFinal.trim().split(/\s+/).filter(Boolean).length >= 2) {
           resetAudio();
           clearTimeout(sendTimer);
           sendTimer = setTimeout(function () {
@@ -598,12 +598,12 @@
       panel.classList.toggle('open', opening);
       btn.classList.toggle('open', opening);
       if (opening) {
-        warm(); // spin up serverless functions so the first reply is fast
+        warm();
         if (!greetingDone) {
           greetingDone = true;
           botRow(GREETING);
         }
-        if (!voiceMode) setTimeout(function () { input.focus(); }, 350);
+        setTimeout(enterVoice, 350); // go straight into voice mode
       } else {
         exitVoice();
       }

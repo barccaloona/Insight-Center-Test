@@ -1,5 +1,5 @@
-// Insight Center Guide — chat widget
-// Zero dependencies. Drop <script src="/chat-widget.js" defer></script> before </body> on any page.
+// Insight Center Guide — voice-first chat widget
+// Zero dependencies. Drop <script src="/chat-widget.js" defer></script> before </body>.
 
 (function () {
   'use strict';
@@ -8,11 +8,19 @@
   var MINT     = '#3EA882';
   var OFFWHITE = '#F7F6F2';
 
-  var GREETING = "Hi! I’m the Insight Center Guide — happy to answer questions about our services, approach, or team. What would you like to know?";
+  var GREETING = "Hi, I'm the Insight Center Guide. Ask me anything about our services, approach, or team.";
 
-  var history  = []; // conversation turns sent to the API
-  var voiceOn  = false;
-  var curAudio = null;
+  var history     = [];
+  var voiceOn     = true;  // voice-first: on by default
+  var curAudio    = null;
+
+  // Voice state machine
+  var shouldListen = false; // true when auto-listen loop should run
+  var isListening  = false;
+  var isThinking   = false;
+  var isSpeaking   = false;
+  var rec          = null;  // SpeechRecognition instance
+  var srSupported  = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   // ── SVGs ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +30,8 @@
     person: '<svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
     speakerOn: '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
     speakerOff: '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>',
-    mic: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    micIdle: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    micStop: '<svg width="18" height="18" fill="currentColor" stroke="none" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>',
     send: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
   };
 
@@ -38,13 +47,12 @@
     'transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease}',
     '#ic-btn:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(36,89,78,.48)}',
     '#ic-btn:active{transform:scale(.94)}',
-
     '#ic-btn .ic-chat{transition:opacity .2s,transform .2s}',
     '#ic-btn .ic-x{position:absolute;opacity:0;transform:scale(.6) rotate(-90deg);transition:opacity .2s,transform .2s}',
     '#ic-btn.open .ic-chat{opacity:0;transform:scale(.6) rotate(90deg)}',
     '#ic-btn.open .ic-x{opacity:1;transform:scale(1) rotate(0)}',
 
-    '#ic-panel{position:fixed;bottom:92px;right:24px;width:360px;max-height:600px;',
+    '#ic-panel{position:fixed;bottom:92px;right:24px;width:360px;max-height:620px;',
     'background:#fff;border-radius:16px;',
     'box-shadow:0 12px 48px rgba(36,89,78,.16),0 2px 8px rgba(0,0,0,.07);',
     'display:flex;flex-direction:column;overflow:hidden;z-index:9998;',
@@ -53,9 +61,10 @@
     '#ic-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all}',
 
     '@media(max-width:420px){',
-    '#ic-panel{width:calc(100vw - 16px);right:8px;bottom:80px;max-height:72vh}',
+    '#ic-panel{width:calc(100vw - 16px);right:8px;bottom:80px;max-height:75vh}',
     '#ic-btn{bottom:16px;right:16px}}',
 
+    // Header
     '#ic-head{background:' + TEAL + ';color:#fff;padding:12px 14px;',
     'display:flex;align-items:center;gap:10px;flex-shrink:0}',
     '#ic-head-dot{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);',
@@ -67,11 +76,11 @@
     '#ic-vol:hover{color:#fff}',
     '#ic-vol.on{color:#8ED3AE}',
 
+    // Messages
     '#ic-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;',
     'gap:10px;background:' + OFFWHITE + ';scroll-behavior:smooth}',
     '#ic-msgs::-webkit-scrollbar{width:3px}',
     '#ic-msgs::-webkit-scrollbar-thumb{background:rgba(36,89,78,.2);border-radius:2px}',
-
     '.ic-row{display:flex;gap:8px;align-items:flex-end}',
     '.ic-row.user{flex-direction:row-reverse}',
     '.ic-av{width:26px;height:26px;border-radius:50%;background:' + MINT + ';',
@@ -81,7 +90,6 @@
     '.ic-row.bot .ic-bbl{background:#fff;border-bottom-left-radius:4px;',
     'box-shadow:0 1px 4px rgba(0,0,0,.07)}',
     '.ic-row.user .ic-bbl{background:' + TEAL + ';color:#fff;border-bottom-right-radius:4px}',
-
     '.ic-dots{display:flex;gap:4px;padding:4px 2px}',
     '.ic-dots span{width:6px;height:6px;border-radius:50%;background:' + MINT + ';',
     'animation:ic-bounce 1.1s infinite}',
@@ -89,27 +97,47 @@
     '.ic-dots span:nth-child(3){animation-delay:.36s}',
     '@keyframes ic-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}',
 
+    // Status bar
+    '#ic-status{padding:7px 14px;background:#fff;border-top:1px solid rgba(36,89,78,.07);',
+    'display:flex;align-items:center;gap:7px;min-height:34px;flex-shrink:0}',
+    '#ic-status-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;',
+    'transition:background .3s}',
+    '#ic-status-dot.listening{background:#e04040;animation:ic-pulse-dot 1s infinite}',
+    '#ic-status-dot.thinking{background:' + MINT + ';animation:ic-pulse-dot 1.5s infinite}',
+    '#ic-status-dot.speaking{background:' + TEAL + ';animation:ic-pulse-dot 0.8s infinite}',
+    '@keyframes ic-pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}',
+    '#ic-status-txt{font-family:"Outfit",sans-serif;font-size:12px;color:#7a9e99;flex:1}',
+
+    // Input bar
     '#ic-bar{padding:10px;background:#fff;border-top:1px solid rgba(36,89,78,.09);',
     'display:flex;gap:7px;align-items:flex-end;flex-shrink:0}',
+
+    // Mic button — primary, larger
+    '#ic-mic{width:44px;height:44px;border-radius:50%;border:2px solid ' + MINT + ';',
+    'background:transparent;color:' + MINT + ';cursor:pointer;',
+    'display:flex;align-items:center;justify-content:center;flex-shrink:0;',
+    'transition:background .2s,color .2s,border-color .2s,transform .12s}',
+    '#ic-mic:hover{background:' + MINT + ';color:#fff}',
+    '#ic-mic:active{transform:scale(.9)}',
+    '#ic-mic.listening{background:#e04040;border-color:#e04040;color:#fff;',
+    'animation:ic-ring 1s infinite}',
+    '#ic-mic.disabled{opacity:.35;cursor:not-allowed;animation:none}',
+    '@keyframes ic-ring{0%,100%{box-shadow:0 0 0 0 rgba(224,64,64,.35)}',
+    '50%{box-shadow:0 0 0 8px rgba(224,64,64,0)}}',
+
     '#ic-in{flex:1;border:1.5px solid #dde8e5;border-radius:10px;',
-    'padding:8px 11px;font-family:"Outfit",sans-serif;font-size:13.5px;',
-    'color:#1a2e28;resize:none;outline:none;min-height:38px;max-height:110px;',
+    'padding:8px 11px;font-family:"Outfit",sans-serif;font-size:13px;',
+    'color:#1a2e28;resize:none;outline:none;min-height:38px;max-height:90px;',
     'line-height:1.4;background:' + OFFWHITE + ';transition:border-color .2s}',
     '#ic-in:focus{border-color:' + MINT + '}',
-    '#ic-in::placeholder{color:#9ab3ad}',
+    '#ic-in::placeholder{color:#9ab3ad;font-size:12px}',
 
-    '#ic-send,#ic-mic{width:36px;height:36px;border-radius:9px;border:none;cursor:pointer;',
+    '#ic-send{width:36px;height:36px;border-radius:9px;border:none;cursor:pointer;',
     'display:flex;align-items:center;justify-content:center;flex-shrink:0;',
-    'transition:background .15s,transform .12s}',
-    '#ic-send:active,#ic-mic:active{transform:scale(.9)}',
-    '#ic-send{background:' + TEAL + ';color:#fff}',
+    'background:' + TEAL + ';color:#fff;transition:background .15s,transform .12s}',
     '#ic-send:hover{background:#1c4a41}',
+    '#ic-send:active{transform:scale(.9)}',
     '#ic-send:disabled{background:#c5d5d2;cursor:not-allowed;transform:none}',
-    '#ic-mic{background:transparent;color:#9ab3ad;border:1.5px solid #dde8e5}',
-    '#ic-mic:hover{color:' + TEAL + ';border-color:' + MINT + '}',
-    '#ic-mic.on{color:#d94040;border-color:#d94040;animation:ic-pulse 1s infinite}',
-    '@keyframes ic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,64,64,.25)}',
-    '50%{box-shadow:0 0 0 7px rgba(217,64,64,0)}}',
   ].join('');
 
   // ── Build DOM ─────────────────────────────────────────────────────────────
@@ -122,7 +150,7 @@
     var wrap = document.createElement('div');
     wrap.id = 'ic-wrap';
     wrap.innerHTML =
-      '<button id="ic-btn" aria-label="Open chat">' +
+      '<button id="ic-btn" aria-label="Open Insight Center Guide">' +
         '<span class="ic-chat">' + SVG.chat + '</span>' +
         '<span class="ic-x">' + SVG.close + '</span>' +
       '</button>' +
@@ -133,17 +161,34 @@
             '<div id="ic-head-name">Insight Center Guide</div>' +
             '<div id="ic-head-sub">Insight Center for Cognitive Development</div>' +
           '</div>' +
-          '<button id="ic-vol" aria-label="Toggle voice replies">' + SVG.speakerOff + '</button>' +
+          '<button id="ic-vol" class="on" aria-label="Toggle voice replies">' + SVG.speakerOn + '</button>' +
         '</div>' +
         '<div id="ic-msgs" role="log" aria-live="polite"></div>' +
+        '<div id="ic-status">' +
+          '<div id="ic-status-dot"></div>' +
+          '<span id="ic-status-txt">' + (srSupported ? 'Tap the mic or type below' : 'Type your question below') + '</span>' +
+        '</div>' +
         '<div id="ic-bar">' +
-          '<button id="ic-mic" aria-label="Voice input" style="display:none">' + SVG.mic + '</button>' +
-          '<textarea id="ic-in" placeholder="Ask me anything…" rows="1" aria-label="Type your question"></textarea>' +
+          (srSupported
+            ? '<button id="ic-mic" aria-label="Tap to speak">' + SVG.micIdle + '</button>'
+            : '') +
+          '<textarea id="ic-in" placeholder="Or type here…" rows="1" aria-label="Type your question"></textarea>' +
           '<button id="ic-send" aria-label="Send">' + SVG.send + '</button>' +
         '</div>' +
       '</div>';
 
     document.body.appendChild(wrap);
+  }
+
+  // ── Status bar ────────────────────────────────────────────────────────────
+
+  function setStatus(state) {
+    var dot = document.getElementById('ic-status-dot');
+    var txt = document.getElementById('ic-status-txt');
+    if (!dot || !txt) return;
+    dot.className = state || '';
+    var labels = { listening: 'Listening…', thinking: 'Thinking…', speaking: 'Speaking…' };
+    txt.textContent = labels[state] || (srSupported ? 'Tap the mic or type below' : 'Type your question below');
   }
 
   // ── Message helpers ───────────────────────────────────────────────────────
@@ -183,14 +228,128 @@
     return row;
   }
 
-  // ── Streaming reply ───────────────────────────────────────────────────────
+  // ── Voice: listen ─────────────────────────────────────────────────────────
 
-  function streamReply(userText) {
+  function startListening() {
+    if (!rec || isListening || isThinking || isSpeaking || !shouldListen) return;
+    try {
+      rec.start();
+    } catch (_) {}
+  }
+
+  function stopListening() {
+    shouldListen = false;
+    if (rec && isListening) {
+      try { rec.stop(); } catch (_) {}
+    }
+  }
+
+  function setupRecognition() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+
+    rec = new SR();
+    rec.continuous      = false;
+    rec.interimResults  = false;
+    rec.lang            = 'en-US';
+
+    rec.addEventListener('start', function () {
+      isListening = true;
+      setStatus('listening');
+      var micBtn = document.getElementById('ic-mic');
+      if (micBtn) { micBtn.classList.add('listening'); micBtn.innerHTML = SVG.micStop; micBtn.setAttribute('aria-label', 'Tap to stop'); }
+    });
+
+    rec.addEventListener('end', function () {
+      isListening = false;
+      var micBtn = document.getElementById('ic-mic');
+      if (micBtn) { micBtn.classList.remove('listening'); micBtn.innerHTML = SVG.micIdle; micBtn.setAttribute('aria-label', 'Tap to speak'); }
+      // Auto-restart if still in voice mode and not busy
+      if (shouldListen && !isThinking && !isSpeaking) {
+        setTimeout(startListening, 400);
+      } else if (!isThinking && !isSpeaking) {
+        setStatus('');
+      }
+    });
+
+    rec.addEventListener('result', function (e) {
+      var transcript = e.results[0][0].transcript.trim();
+      if (!transcript) return;
+      // Stop auto-listen loop while processing
+      shouldListen = false;
+      sendMessage(transcript);
+    });
+
+    rec.addEventListener('error', function (e) {
+      isListening = false;
+      // On 'no-speech', quietly restart if still in voice mode
+      if (e.error === 'no-speech' && shouldListen && !isThinking && !isSpeaking) {
+        setTimeout(startListening, 200);
+      } else {
+        setStatus('');
+      }
+    });
+  }
+
+  // ── Voice: speak ─────────────────────────────────────────────────────────
+
+  function afterSpeak() {
+    isSpeaking = false;
+    setStatus('');
+    if (voiceOn && srSupported) {
+      shouldListen = true;
+      setTimeout(startListening, 600);
+    }
+  }
+
+  function speakText(text) {
+    stopSpeech();
+    isSpeaking = true;
+    setStatus('speaking');
+
+    fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text }),
+    })
+    .then(function (resp) {
+      if (!resp.ok) throw new Error('TTS unavailable');
+      return resp.blob();
+    })
+    .then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      curAudio = new Audio(url);
+      curAudio.addEventListener('ended', function () { URL.revokeObjectURL(url); afterSpeak(); });
+      curAudio.addEventListener('error', function () { afterSpeak(); });
+      curAudio.play().catch(function () { afterSpeak(); });
+    })
+    .catch(function () {
+      if (!window.speechSynthesis) { afterSpeak(); return; }
+      var utt = new SpeechSynthesisUtterance(text);
+      utt.rate = 0.93;
+      utt.onend = afterSpeak;
+      utt.onerror = afterSpeak;
+      window.speechSynthesis.speak(utt);
+    });
+  }
+
+  function stopSpeech() {
+    if (curAudio) { curAudio.pause(); curAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+
+  // ── Stream reply ──────────────────────────────────────────────────────────
+
+  function sendMessage(text) {
     var sendBtn = document.getElementById('ic-send');
     var msgs    = document.getElementById('ic-msgs');
 
-    history.push({ role: 'user', content: userText });
-    sendBtn.disabled = true;
+    history.push({ role: 'user', content: text });
+    userRow(text);
+    if (sendBtn) sendBtn.disabled = true;
+    isThinking = true;
+    setStatus('thinking');
 
     var typing  = typingRow();
     var bubble  = null;
@@ -206,7 +365,6 @@
         return resp.json().catch(function () { return { error: 'Server error ' + resp.status }; })
           .then(function (e) { throw new Error(e.error || 'Server error'); });
       }
-
       var reader  = resp.body.getReader();
       var decoder = new TextDecoder();
       var buf     = '';
@@ -214,11 +372,9 @@
       function pump() {
         return reader.read().then(function (chunk) {
           if (chunk.done) return;
-
           buf += decoder.decode(chunk.value, { stream: true });
           var lines = buf.split('\n');
           buf = lines.pop();
-
           for (var i = 0; i < lines.length; i++) {
             var line = lines[i];
             if (line.indexOf('data: ') !== 0) continue;
@@ -238,148 +394,106 @@
               }
             } catch (_) {}
           }
-
           return pump();
         });
       }
-
       return pump();
     })
     .then(function () {
+      isThinking = false;
+      if (sendBtn) sendBtn.disabled = false;
       if (fullTxt) {
         history.push({ role: 'assistant', content: fullTxt });
-        if (voiceOn) speakText(fullTxt);
+        if (voiceOn) {
+          speakText(fullTxt);
+        } else if (srSupported) {
+          shouldListen = true;
+          setTimeout(startListening, 400);
+          setStatus('');
+        }
+      } else {
+        setStatus('');
+        if (srSupported && voiceOn) { shouldListen = true; setTimeout(startListening, 400); }
       }
-      sendBtn.disabled = false;
     })
     .catch(function (err) {
+      isThinking = false;
       typing.parentNode && typing.parentNode.removeChild(typing);
       botRow('Sorry, something went wrong. Please call us at 540-533-3821 or use the contact form.');
+      if (sendBtn) sendBtn.disabled = false;
+      setStatus('');
+      if (srSupported && voiceOn) { shouldListen = true; setTimeout(startListening, 600); }
       console.error('[IC Guide]', err);
-      sendBtn.disabled = false;
     });
   }
 
-  // ── Voice output ──────────────────────────────────────────────────────────
-
-  function speakText(text) {
-    stopSpeech();
-
-    fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text }),
-    })
-    .then(function (resp) {
-      if (!resp.ok) throw new Error('TTS unavailable');
-      return resp.blob();
-    })
-    .then(function (blob) {
-      var url = URL.createObjectURL(blob);
-      curAudio = new Audio(url);
-      curAudio.addEventListener('ended', function () { URL.revokeObjectURL(url); });
-      curAudio.play();
-    })
-    .catch(function () {
-      // Browser TTS fallback
-      if (!window.speechSynthesis) return;
-      var utt = new SpeechSynthesisUtterance(text);
-      utt.rate = 0.93;
-      window.speechSynthesis.speak(utt);
-    });
-  }
-
-  function stopSpeech() {
-    if (curAudio) { curAudio.pause(); curAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-  }
-
-  // ── Voice input ───────────────────────────────────────────────────────────
-
-  function setupMic(micBtn, input) {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return; // hide mic on unsupported browsers (Firefox)
-
-    micBtn.style.display = 'flex';
-    var rec       = new SR();
-    rec.continuous      = false;
-    rec.interimResults  = false;
-    rec.lang            = 'en-US';
-    var listening = false;
-
-    micBtn.addEventListener('click', function () {
-      if (listening) { rec.stop(); return; }
-      try { rec.start(); } catch (_) {}
-      // Mic use auto-enables voice replies
-      voiceOn = true;
-      var vol = document.getElementById('ic-vol');
-      vol.classList.add('on');
-      vol.innerHTML = SVG.speakerOn;
-    });
-
-    rec.addEventListener('start', function () {
-      listening = true;
-      micBtn.classList.add('on');
-      micBtn.setAttribute('aria-label', 'Listening…');
-    });
-    rec.addEventListener('end', function () {
-      listening = false;
-      micBtn.classList.remove('on');
-      micBtn.setAttribute('aria-label', 'Voice input');
-    });
-    rec.addEventListener('result', function (e) {
-      var transcript = e.results[0][0].transcript.trim();
-      if (!transcript) return;
-      input.value = transcript;
-      input.dispatchEvent(new Event('input'));
-      // Auto-send after a short pause so the user can see what was transcribed
-      setTimeout(function () { document.getElementById('ic-send').click(); }, 400);
-    });
-    rec.addEventListener('error', function () {
-      listening = false;
-      micBtn.classList.remove('on');
-    });
-  }
-
-  // ── Init ─────────────────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────
 
   function init() {
     buildDOM();
+    setupRecognition();
 
-    var btn    = document.getElementById('ic-btn');
-    var panel  = document.getElementById('ic-panel');
-    var input  = document.getElementById('ic-in');
-    var sendBtn = document.getElementById('ic-send');
-    var micBtn = document.getElementById('ic-mic');
-    var volBtn = document.getElementById('ic-vol');
+    var launchBtn = document.getElementById('ic-btn');
+    var panel     = document.getElementById('ic-panel');
+    var input     = document.getElementById('ic-in');
+    var sendBtn   = document.getElementById('ic-send');
+    var micBtn    = document.getElementById('ic-mic');
+    var volBtn    = document.getElementById('ic-vol');
 
     botRow(GREETING);
 
     // Toggle open / close
-    btn.addEventListener('click', function () {
+    launchBtn.addEventListener('click', function () {
       var opening = !panel.classList.contains('open');
       panel.classList.toggle('open', opening);
-      btn.classList.toggle('open', opening);
-      if (opening) setTimeout(function () { input.focus(); }, 300);
+      launchBtn.classList.toggle('open', opening);
+
+      if (opening) {
+        // Auto-start listening shortly after opening
+        if (srSupported && voiceOn) {
+          shouldListen = true;
+          setTimeout(startListening, 700);
+        } else {
+          setTimeout(function () { input.focus(); }, 300);
+        }
+      } else {
+        // Stop everything on close
+        stopListening();
+        stopSpeech();
+        setStatus('');
+      }
     });
 
-    // Send message
-    function send() {
-      var text = input.value.trim();
-      if (!text || sendBtn.disabled) return;
-      userRow(text);
-      input.value = '';
-      input.style.height = 'auto';
-      streamReply(text);
+    // Manual mic button (tap to start / tap to stop)
+    if (micBtn) {
+      micBtn.addEventListener('click', function () {
+        if (isListening) {
+          stopListening();
+        } else {
+          shouldListen = true;
+          startListening();
+        }
+      });
     }
 
-    sendBtn.addEventListener('click', send);
+    // Text send
+    function sendTyped() {
+      var text = input.value.trim();
+      if (!text || isThinking) return;
+      stopListening();
+      stopSpeech();
+      input.value = '';
+      input.style.height = 'auto';
+      sendMessage(text);
+    }
+
+    sendBtn.addEventListener('click', sendTyped);
     input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTyped(); }
     });
     input.addEventListener('input', function () {
       input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 110) + 'px';
+      input.style.height = Math.min(input.scrollHeight, 90) + 'px';
     });
 
     // Voice toggle
@@ -387,10 +501,15 @@
       voiceOn = !voiceOn;
       volBtn.classList.toggle('on', voiceOn);
       volBtn.innerHTML = voiceOn ? SVG.speakerOn : SVG.speakerOff;
-      if (!voiceOn) stopSpeech();
+      if (!voiceOn) {
+        stopSpeech();
+        stopListening();
+        setStatus('');
+      } else if (srSupported && panel.classList.contains('open') && !isThinking) {
+        shouldListen = true;
+        setTimeout(startListening, 300);
+      }
     });
-
-    setupMic(micBtn, input);
   }
 
   if (document.readyState === 'loading') {

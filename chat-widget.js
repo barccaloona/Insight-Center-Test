@@ -87,6 +87,7 @@
     if (audioPlaying || audioQueue.length === 0) return;
     audioPlaying = true;
     setState('speaking');
+    if (voiceMode) startRec(); // keep mic live so barge-in can fire
     var p   = audioQueue.shift();
     var gen = playGen;
     p.then(function (url) {
@@ -410,8 +411,8 @@
       var display = (pendingFinal + interim).trim();
 
       if (state === 'speaking') {
-        // Interrupt: stop audio if user says anything substantial (3+ words)
-        if (display.split(/\s+/).length >= 3) {
+        // Interrupt: stop audio if user says anything substantial (2+ words)
+        if (display.split(/\s+/).length >= 2) {
           resetAudio();
           clearTimeout(sendTimer);
           sendTimer = setTimeout(function () {

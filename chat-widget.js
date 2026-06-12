@@ -37,13 +37,14 @@
   var audioPlaying = false;
   var streamDone   = false; // true when no more TTS chunks will arrive
   var curAudio     = null;
+  var playGen      = 0;    // incremented on reset to invalidate stale callbacks
 
   function resetAudio() {
+    playGen++;
     streamDone   = false;
     audioQueue   = [];
     audioPlaying = false;
     if (curAudio) { curAudio.pause(); curAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
 
   function onAudioDone() {
@@ -57,7 +58,7 @@
       if (voiceOn && srSupported) {
         sendTimer = null;
         pendingFinal = '';
-        setState('listening');
+        setTimeout(startRec, 400);
       }
     }
   }
@@ -66,14 +67,16 @@
     if (audioPlaying || audioQueue.length === 0) return;
     audioPlaying = true;
     setState('speaking');
-    var p = audioQueue.shift();
+    var p   = audioQueue.shift();
+    var gen = playGen;
     p.then(function (url) {
+      if (gen !== playGen) { if (url) URL.revokeObjectURL(url); return; }
       if (!url) { onAudioDone(); return; }
       curAudio = new Audio(url);
       curAudio.onended = function () { URL.revokeObjectURL(url); onAudioDone(); };
       curAudio.onerror = function () { URL.revokeObjectURL(url); onAudioDone(); };
       curAudio.play().catch(onAudioDone);
-    }).catch(onAudioDone);
+    }).catch(function () { if (gen === playGen) onAudioDone(); });
   }
 
   function enqueueTTS(text) {
@@ -88,13 +91,7 @@
     }).then(function (b) {
       return URL.createObjectURL(b);
     }).catch(function () {
-      // Browser TTS fallback — play immediately, don't hold up queue
-      if (window.speechSynthesis) {
-        var u = new SpeechSynthesisUtterance(text.trim());
-        u.rate = 0.93;
-        window.speechSynthesis.speak(u);
-      }
-      return null;
+      return null; // skip silently — no browser TTS fallback to avoid double-voice
     });
     audioQueue.push(p);
     playNext();
@@ -502,16 +499,9 @@
   }
 
   // ── Greeting ──────────────────────────────────────────────────────────────
-
-  function playGreeting() {
-    resetAudio();
-    ttsBuffer  = '';
-    streamDone = false;
-    setState('speaking');
-    // Split greeting into chunks right away
-    var chunks = GREETING.match(/[^.!?]*[.!?]+(?:\s|$)/g) || [GREETING];
-    for (var i = 0; i < chunks.length; i++) enqueueTTS(chunks[i].trim());
-    streamDone = true;
+  // Greeting is shown as text only — mic starts immediately on open.
+  function showGreeting() {
+    botRow(GREETING);
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────
@@ -534,11 +524,9 @@
       if (opening) {
         if (!greetingDone) {
           greetingDone = true;
-          if (voiceOn) { setTimeout(playGreeting, 500); }
-          else { setTimeout(startRec, 600); }
-        } else {
-          setTimeout(startRec, 400);
+          showGreeting();
         }
+        setTimeout(startRec, 400);
       } else {
         stopRec();
         resetAudio();

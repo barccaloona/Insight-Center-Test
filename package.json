@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "puppeteer": "^24.38.0"
   }
 }

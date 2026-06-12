@@ -12,16 +12,103 @@
 
   var history      = [];
   var voiceOn      = true;
-  var curAudio     = null;
   var greetingDone = false;
 
-  // Voice state
+  // ── Voice state ────────────────────────────────────────────────────────────
   var shouldListen = false;
   var isListening  = false;
   var isThinking   = false;
-  var isSpeaking   = false;
   var rec          = null;
   var srSupported  = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // ── TTS audio queue ────────────────────────────────────────────────────────
+  // Sentences are queued as Promises<blob-url> so audio plays in order
+  // even when ElevenLabs responses arrive out of order.
+  var audioQueue     = [];
+  var audioPlaying   = false;
+  var ttsFinished    = false; // true when no more sentences will be enqueued
+  var currentAudio   = null;
+
+  function resetTTSQueue() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    audioQueue     = [];
+    audioPlaying   = false;
+    ttsFinished    = false;
+  }
+
+  function playNextInQueue() {
+    if (audioPlaying || audioQueue.length === 0) return;
+    audioPlaying = true;
+    var item = audioQueue.shift(); // Promise<url|null>
+    item.then(function (url) {
+      if (!url) { audioPlaying = false; checkTTSDone(); playNextInQueue(); return; }
+      currentAudio = new Audio(url);
+      currentAudio.addEventListener('ended', function () {
+        URL.revokeObjectURL(url);
+        currentAudio   = null;
+        audioPlaying   = false;
+        checkTTSDone();
+        playNextInQueue();
+      });
+      currentAudio.addEventListener('error', function () {
+        URL.revokeObjectURL(url);
+        currentAudio   = null;
+        audioPlaying   = false;
+        checkTTSDone();
+        playNextInQueue();
+      });
+      currentAudio.play().catch(function () {
+        audioPlaying = false;
+        checkTTSDone();
+        playNextInQueue();
+      });
+    }).catch(function () {
+      audioPlaying = false;
+      checkTTSDone();
+      playNextInQueue();
+    });
+  }
+
+  function checkTTSDone() {
+    if (ttsFinished && audioQueue.length === 0 && !audioPlaying) {
+      afterAllSpoken();
+    }
+  }
+
+  // Enqueue a sentence for TTS — fires request immediately, queues the Promise
+  function enqueueSentence(text) {
+    if (!text.trim()) return;
+    var promise = fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text }),
+    }).then(function (r) {
+      if (!r.ok) throw new Error('tts error');
+      return r.blob();
+    }).then(function (blob) {
+      return URL.createObjectURL(blob);
+    }).catch(function () {
+      // Browser TTS fallback — play inline, return null so queue keeps moving
+      if (window.speechSynthesis) {
+        var u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.93;
+        window.speechSynthesis.speak(u);
+      }
+      return null;
+    });
+    audioQueue.push(promise);
+    playNextInQueue();
+  }
+
+  // Called when the last audio finishes and no more are queued
+  function afterAllSpoken() {
+    setOrbState('');
+    if (voiceOn && srSupported) {
+      shouldListen = true;
+      setTimeout(startListening, 500);
+    }
+  }
 
   // ── SVGs ──────────────────────────────────────────────────────────────────
 
@@ -40,8 +127,6 @@
 
   var CSS = [
     '#ic-wrap *{box-sizing:border-box}',
-
-    // Launcher button
     '#ic-btn{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;',
     'background:' + TEAL + ';border:none;cursor:pointer;',
     'box-shadow:0 4px 24px rgba(36,89,78,.4);',
@@ -54,7 +139,6 @@
     '#ic-btn.open .ic-chat{opacity:0;transform:scale(.6) rotate(90deg)}',
     '#ic-btn.open .ic-x{opacity:1;transform:scale(1) rotate(0)}',
 
-    // Panel
     '#ic-panel{position:fixed;bottom:96px;right:24px;width:340px;',
     'background:#fff;border-radius:20px;',
     'box-shadow:0 16px 56px rgba(36,89,78,.18),0 2px 10px rgba(0,0,0,.07);',
@@ -66,7 +150,6 @@
     '#ic-panel{width:calc(100vw - 20px);right:10px;bottom:84px}',
     '#ic-btn{bottom:18px;right:18px}}',
 
-    // Header
     '#ic-head{background:' + TEAL + ';padding:14px 16px;',
     'display:flex;align-items:center;justify-content:space-between;flex-shrink:0}',
     '#ic-head-left{display:flex;align-items:center;gap:10px}',
@@ -79,59 +162,51 @@
     '#ic-vol:hover{color:#fff}',
     '#ic-vol.on{color:#8ED3AE}',
 
-    // Orb area — the voice visual centerpiece
     '#ic-orb-area{background:' + OFFWHITE + ';padding:28px 0 20px;',
     'display:flex;flex-direction:column;align-items:center;gap:14px;flex-shrink:0}',
 
     '#ic-orb-wrap{position:relative;width:96px;height:96px;',
     'display:flex;align-items:center;justify-content:center}',
-
-    // Ripple rings (shown when listening or speaking)
-    '#ic-orb-wrap .ic-ring{position:absolute;border-radius:50%;opacity:0;',
-    'transition:opacity .3s}',
+    '#ic-orb-wrap .ic-ring{position:absolute;border-radius:50%;opacity:0;transition:opacity .3s}',
     '#ic-orb-wrap .ic-ring-1{width:96px;height:96px;border:2px solid ' + MINT + '}',
-    '#ic-orb-wrap .ic-ring-2{width:114px;height:114px;border:1.5px solid ' + MINT + '}',
-    '#ic-orb-wrap .ic-ring-3{width:132px;height:132px;border:1px solid ' + MINT + '}',
-
+    '#ic-orb-wrap .ic-ring-2{width:116px;height:116px;border:1.5px solid ' + MINT + '}',
+    '#ic-orb-wrap .ic-ring-3{width:136px;height:136px;border:1px solid ' + MINT + '}',
     '#ic-orb-wrap.listening .ic-ring-1{opacity:.7;animation:ic-ripple 1.6s ease-out infinite}',
     '#ic-orb-wrap.listening .ic-ring-2{opacity:.45;animation:ic-ripple 1.6s ease-out .35s infinite}',
     '#ic-orb-wrap.listening .ic-ring-3{opacity:.25;animation:ic-ripple 1.6s ease-out .7s infinite}',
-    '#ic-orb-wrap.speaking .ic-ring-1{opacity:.6;animation:ic-ripple 1s ease-out infinite}',
-    '#ic-orb-wrap.speaking .ic-ring-2{opacity:.4;animation:ic-ripple 1s ease-out .2s infinite}',
-    '#ic-orb-wrap.speaking .ic-ring-3{opacity:.22;animation:ic-ripple 1s ease-out .4s infinite}',
+    '#ic-orb-wrap.speaking .ic-ring-1{opacity:.6;animation:ic-ripple .9s ease-out infinite}',
+    '#ic-orb-wrap.speaking .ic-ring-2{opacity:.38;animation:ic-ripple .9s ease-out .2s infinite}',
+    '#ic-orb-wrap.speaking .ic-ring-3{opacity:.2;animation:ic-ripple .9s ease-out .4s infinite}',
     '@keyframes ic-ripple{0%{transform:scale(.85);opacity:.7}100%{transform:scale(1.1);opacity:0}}',
 
-    // The orb itself
     '#ic-orb{width:72px;height:72px;border-radius:50%;position:relative;z-index:1;',
     'background:radial-gradient(circle at 38% 35%,' + MINT + ',' + TEAL + ');',
     'box-shadow:0 4px 20px rgba(36,89,78,.35);',
-    'transition:transform .3s ease,box-shadow .3s ease;',
     'animation:ic-orb-idle 3.5s ease-in-out infinite}',
     '@keyframes ic-orb-idle{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}',
     '#ic-orb-wrap.listening #ic-orb{',
     'background:radial-gradient(circle at 38% 35%,#e87070,#c03030);',
     'box-shadow:0 4px 24px rgba(200,48,48,.4);',
     'animation:ic-orb-listen .9s ease-in-out infinite}',
-    '@keyframes ic-orb-listen{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}',
+    '@keyframes ic-orb-listen{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}',
     '#ic-orb-wrap.thinking #ic-orb{',
     'background:radial-gradient(circle at 38% 35%,#8ED3AE,' + MINT + ');',
-    'animation:ic-orb-think 1.4s ease-in-out infinite}',
+    'animation:ic-orb-think 1.2s ease-in-out infinite}',
     '@keyframes ic-orb-think{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}',
     '#ic-orb-wrap.speaking #ic-orb{',
-    'animation:ic-orb-speak .7s ease-in-out infinite}',
-    '@keyframes ic-orb-speak{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}',
+    'animation:ic-orb-speak .65s ease-in-out infinite}',
+    '@keyframes ic-orb-speak{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}',
 
-    // Status label under orb
-    '#ic-orb-label{font-family:"Outfit",sans-serif;font-size:12.5px;color:#5a8a82;',
-    'letter-spacing:.04em;text-transform:uppercase;font-weight:500;min-height:18px;',
-    'transition:opacity .2s}',
+    // Label under orb — shows status or interim transcript
+    '#ic-orb-label{font-family:"Outfit",sans-serif;font-size:12px;color:#5a8a82;',
+    'letter-spacing:.03em;text-align:center;max-width:260px;',
+    'min-height:18px;padding:0 12px;line-height:1.4;',
+    'transition:color .2s}',
+    '#ic-orb-label.interim{color:#1a2e28;font-style:italic}',
 
-    // Waveform bars (visible when listening or speaking)
-    '#ic-wave{display:flex;align-items:center;gap:3px;height:20px;opacity:0;',
-    'transition:opacity .3s}',
+    '#ic-wave{display:flex;align-items:center;gap:3px;height:20px;opacity:0;transition:opacity .3s}',
     '#ic-wave.active{opacity:1}',
-    '#ic-wave span{width:3px;border-radius:2px;background:' + MINT + ';',
-    'animation:ic-bar 1.2s ease-in-out infinite}',
+    '#ic-wave span{width:3px;border-radius:2px;background:' + MINT + ';animation:ic-bar 1.2s ease-in-out infinite}',
     '#ic-wave span:nth-child(1){animation-delay:0s}',
     '#ic-wave span:nth-child(2){animation-delay:.1s}',
     '#ic-wave span:nth-child(3){animation-delay:.2s}',
@@ -141,8 +216,7 @@
     '#ic-wave span:nth-child(7){animation-delay:.25s}',
     '@keyframes ic-bar{0%,100%{height:4px}50%{height:18px}}',
 
-    // Transcript area
-    '#ic-transcript{max-height:180px;overflow-y:auto;padding:12px 14px;',
+    '#ic-transcript{max-height:160px;overflow-y:auto;padding:10px 14px;',
     'display:flex;flex-direction:column;gap:8px;background:#fff;',
     'border-top:1px solid rgba(36,89,78,.07);scroll-behavior:smooth}',
     '#ic-transcript:empty{display:none}',
@@ -157,13 +231,11 @@
     '.ic-row.bot .ic-bbl{background:' + OFFWHITE + ';border-bottom-left-radius:3px}',
     '.ic-row.user .ic-bbl{background:' + TEAL + ';color:#fff;border-bottom-right-radius:3px}',
     '.ic-dots{display:flex;gap:4px;padding:3px 0}',
-    '.ic-dots span{width:5px;height:5px;border-radius:50%;background:' + MINT + ';',
-    'animation:ic-bounce 1.1s infinite}',
+    '.ic-dots span{width:5px;height:5px;border-radius:50%;background:' + MINT + ';animation:ic-bounce 1.1s infinite}',
     '.ic-dots span:nth-child(2){animation-delay:.18s}',
     '.ic-dots span:nth-child(3){animation-delay:.36s}',
     '@keyframes ic-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}',
 
-    // Input bar
     '#ic-bar{padding:10px 12px;background:#fff;border-top:1px solid rgba(36,89,78,.09);',
     'display:flex;gap:8px;align-items:center;flex-shrink:0}',
     '#ic-mic{width:42px;height:42px;border-radius:50%;border:2px solid ' + MINT + ';',
@@ -172,11 +244,8 @@
     'transition:background .2s,color .2s,border-color .2s,transform .12s}',
     '#ic-mic:hover{background:' + MINT + ';color:#fff}',
     '#ic-mic:active{transform:scale(.9)}',
-    '#ic-mic.listening{background:#c03030;border-color:#c03030;color:#fff;',
-    'animation:ic-mic-ring 1s infinite}',
-    '#ic-mic.disabled{opacity:.3;cursor:not-allowed;animation:none}',
-    '@keyframes ic-mic-ring{0%,100%{box-shadow:0 0 0 0 rgba(192,48,48,.3)}',
-    '50%{box-shadow:0 0 0 8px rgba(192,48,48,0)}}',
+    '#ic-mic.listening{background:#c03030;border-color:#c03030;color:#fff;animation:ic-mic-ring 1s infinite}',
+    '@keyframes ic-mic-ring{0%,100%{box-shadow:0 0 0 0 rgba(192,48,48,.3)}50%{box-shadow:0 0 0 8px rgba(192,48,48,0)}}',
     '#ic-in{flex:1;border:1.5px solid #dde8e5;border-radius:10px;',
     'padding:8px 11px;font-family:"Outfit",sans-serif;font-size:13px;',
     'color:#1a2e28;resize:none;outline:none;height:38px;',
@@ -210,7 +279,6 @@
         '<span class="ic-x">' + SVG.close + '</span>' +
       '</button>' +
       '<div id="ic-panel" role="dialog" aria-label="Insight Center Guide">' +
-        // Header
         '<div id="ic-head">' +
           '<div id="ic-head-left">' +
             '<div id="ic-head-dot">' + SVG.person + '</div>' +
@@ -221,7 +289,6 @@
           '</div>' +
           '<button id="ic-vol" class="on" aria-label="Toggle voice">' + SVG.speakerOn + '</button>' +
         '</div>' +
-        // Orb
         '<div id="ic-orb-area">' +
           '<div id="ic-orb-wrap">' +
             '<div class="ic-ring ic-ring-1"></div>' +
@@ -229,15 +296,10 @@
             '<div class="ic-ring ic-ring-3"></div>' +
             '<div id="ic-orb"></div>' +
           '</div>' +
-          '<div id="ic-wave">' +
-            '<span></span><span></span><span></span><span></span>' +
-            '<span></span><span></span><span></span>' +
-          '</div>' +
+          '<div id="ic-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>' +
           '<div id="ic-orb-label">Insight Center Guide</div>' +
         '</div>' +
-        // Transcript
         '<div id="ic-transcript" role="log" aria-live="polite"></div>' +
-        // Input bar
         '<div id="ic-bar">' +
           micHTML +
           '<textarea id="ic-in" placeholder="Or type here…" rows="1" aria-label="Type your question"></textarea>' +
@@ -248,24 +310,27 @@
     document.body.appendChild(wrap);
   }
 
-  // ── Orb state ─────────────────────────────────────────────────────────────
+  // ── Orb / label helpers ───────────────────────────────────────────────────
 
   function setOrbState(state) {
-    var wrap  = document.getElementById('ic-orb-wrap');
-    var label = document.getElementById('ic-orb-label');
-    var wave  = document.getElementById('ic-wave');
-    if (!wrap) return;
-    wrap.className = state || '';
-    var labels = {
-      listening: 'Listening…',
-      thinking:  'Thinking…',
-      speaking:  'Speaking…',
-    };
-    if (label) label.textContent = labels[state] || 'Insight Center Guide';
-    if (wave)  wave.classList.toggle('active', state === 'listening' || state === 'speaking');
+    var wrap = document.getElementById('ic-orb-wrap');
+    var wave = document.getElementById('ic-wave');
+    if (wrap) wrap.className = state || '';
+    if (wave) wave.classList.toggle('active', state === 'listening' || state === 'speaking');
+    if (state !== 'listening') setOrbLabel(
+      state === 'thinking' ? 'Thinking…' :
+      state === 'speaking' ? 'Speaking…' : 'Insight Center Guide'
+    );
   }
 
-  // ── Transcript helpers ────────────────────────────────────────────────────
+  function setOrbLabel(text, interim) {
+    var el = document.getElementById('ic-orb-label');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle('interim', !!interim);
+  }
+
+  // ── Transcript ────────────────────────────────────────────────────────────
 
   function botRow(text) {
     var t = document.getElementById('ic-transcript');
@@ -302,10 +367,10 @@
     return row;
   }
 
-  // ── Recognition ───────────────────────────────────────────────────────────
+  // ── Speech recognition (continuous + interim) ─────────────────────────────
 
   function startListening() {
-    if (!rec || isListening || isThinking || isSpeaking || !shouldListen) return;
+    if (!rec || isListening || isThinking || !shouldListen) return;
     try { rec.start(); } catch (_) {}
   }
 
@@ -317,96 +382,103 @@
   function setupRecognition() {
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return;
+
     rec = new SR();
-    rec.continuous     = false;
-    rec.interimResults = false;
+    rec.continuous     = true;   // keep mic open — no aggressive timeout
+    rec.interimResults = true;   // show what's being heard in real-time
     rec.lang           = 'en-US';
+
+    var pendingFinal = '';
+    var sendTimer    = null;
 
     rec.addEventListener('start', function () {
       isListening = true;
+      pendingFinal = '';
       setOrbState('listening');
+      setOrbLabel('Listening…');
       var m = document.getElementById('ic-mic');
       if (m) { m.classList.add('listening'); m.innerHTML = SVG.stop; m.setAttribute('aria-label', 'Stop'); }
     });
 
     rec.addEventListener('end', function () {
       isListening = false;
+      clearTimeout(sendTimer);
       var m = document.getElementById('ic-mic');
       if (m) { m.classList.remove('listening'); m.innerHTML = SVG.mic; m.setAttribute('aria-label', 'Tap to speak'); }
-      if (shouldListen && !isThinking && !isSpeaking) {
-        setTimeout(startListening, 350);
-      } else if (!isThinking && !isSpeaking) {
+      // Auto-restart if still in voice mode and not busy
+      if (shouldListen && !isThinking) {
+        setTimeout(startListening, 250);
+      } else if (!isThinking) {
         setOrbState('');
       }
     });
 
     rec.addEventListener('result', function (e) {
-      var text = e.results[0][0].transcript.trim();
-      if (!text) return;
-      shouldListen = false;
-      sendMessage(text);
+      var interim = '';
+      var newFinal = '';
+
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          newFinal += e.results[i][0].transcript;
+        } else {
+          interim += e.results[i][0].transcript;
+        }
+      }
+
+      if (newFinal) pendingFinal += newFinal;
+
+      // Show what's being heard under the orb
+      var display = (pendingFinal + interim).trim();
+      if (display) setOrbLabel(display, true);
+
+      // After 1 second of no new speech, send what we have
+      clearTimeout(sendTimer);
+      if (pendingFinal.trim()) {
+        sendTimer = setTimeout(function () {
+          var toSend = pendingFinal.trim();
+          pendingFinal = '';
+          if (!toSend) return;
+          shouldListen = false;
+          try { rec.stop(); } catch (_) {}
+          setOrbLabel('');
+          sendMessage(toSend);
+        }, 1000);
+      }
     });
 
     rec.addEventListener('error', function (e) {
       isListening = false;
-      if (e.error === 'no-speech' && shouldListen && !isThinking && !isSpeaking) {
-        setTimeout(startListening, 200);
-      } else {
-        setOrbState('');
-      }
+      clearTimeout(sendTimer);
+      pendingFinal = '';
+      // no-speech is normal; other errors reset state
+      if (e.error !== 'no-speech') setOrbState('');
     });
-  }
-
-  // ── Voice output ──────────────────────────────────────────────────────────
-
-  function afterSpeak() {
-    isSpeaking = false;
-    if (voiceOn && srSupported) {
-      shouldListen = true;
-      setTimeout(startListening, 500);
-    } else {
-      setOrbState('');
-    }
-  }
-
-  function speakText(text) {
-    stopSpeech();
-    isSpeaking = true;
-    setOrbState('speaking');
-
-    fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text }),
-    })
-    .then(function (r) {
-      if (!r.ok) throw new Error('no tts');
-      return r.blob();
-    })
-    .then(function (blob) {
-      var url = URL.createObjectURL(blob);
-      curAudio = new Audio(url);
-      curAudio.addEventListener('ended', function () { URL.revokeObjectURL(url); afterSpeak(); });
-      curAudio.addEventListener('error', afterSpeak);
-      curAudio.play().catch(afterSpeak);
-    })
-    .catch(function () {
-      if (!window.speechSynthesis) { afterSpeak(); return; }
-      var u = new SpeechSynthesisUtterance(text);
-      u.rate = 0.93;
-      u.onend = afterSpeak;
-      u.onerror = afterSpeak;
-      window.speechSynthesis.speak(u);
-    });
-  }
-
-  function stopSpeech() {
-    if (curAudio) { curAudio.pause(); curAudio = null; }
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    isSpeaking = false;
   }
 
   // ── Send / stream ─────────────────────────────────────────────────────────
+
+  // Sentence splitter — splits on . ! ? followed by space or end of string
+  var SENTENCE_RE = /[^.!?]*[.!?]+(?:\s|$)/g;
+  var sentenceBuf = '';
+
+  function flushSentenceBuf(force) {
+    // Extract complete sentences from buffer
+    var matches = sentenceBuf.match(SENTENCE_RE);
+    if (matches) {
+      for (var i = 0; i < matches.length; i++) {
+        var s = matches[i].trim();
+        if (s) enqueueSentence(s);
+      }
+      // Keep the remainder (incomplete sentence)
+      var last = matches[matches.length - 1];
+      sentenceBuf = sentenceBuf.slice(sentenceBuf.lastIndexOf(last) + last.length);
+    }
+    // On force flush (end of stream), speak whatever's left
+    if (force && sentenceBuf.trim()) {
+      enqueueSentence(sentenceBuf.trim());
+      sentenceBuf = '';
+    }
+  }
 
   function sendMessage(text) {
     var sendBtn = document.getElementById('ic-send');
@@ -417,6 +489,11 @@
     if (sendBtn) sendBtn.disabled = true;
     isThinking = true;
     setOrbState('thinking');
+
+    // Reset TTS queue for new response
+    resetTTSQueue();
+    sentenceBuf  = '';
+    ttsFinished  = false;
 
     var typing  = typingRow();
     var bubble  = null;
@@ -435,6 +512,7 @@
       var reader  = resp.body.getReader();
       var decoder = new TextDecoder();
       var buf     = '';
+
       function pump() {
         return reader.read().then(function (chunk) {
           if (chunk.done) return;
@@ -449,10 +527,18 @@
               var p = JSON.parse(raw);
               if (p.error) throw new Error(p.error);
               if (p.text) {
+                // Show in transcript
                 if (!bubble) { typing.parentNode && typing.parentNode.removeChild(typing); bubble = botRow(''); }
                 fullTxt += p.text;
                 bubble.textContent = fullTxt;
                 t.scrollTop = t.scrollHeight;
+                // Feed into TTS pipeline sentence-by-sentence
+                if (voiceOn) {
+                  sentenceBuf += p.text;
+                  flushSentenceBuf(false);
+                  // Switch orb to speaking once first audio is queued
+                  if (audioQueue.length > 0 || audioPlaying) setOrbState('speaking');
+                }
               }
             } catch (_) {}
           }
@@ -466,13 +552,22 @@
       if (sendBtn) sendBtn.disabled = false;
       if (fullTxt) {
         history.push({ role: 'assistant', content: fullTxt });
-        if (voiceOn) { speakText(fullTxt); return; }
+        if (voiceOn) {
+          // Flush any remaining sentence fragment
+          flushSentenceBuf(true);
+          ttsFinished = true;
+          // If nothing is playing or queued, call afterAllSpoken directly
+          if (!audioPlaying && audioQueue.length === 0) afterAllSpoken();
+          else setOrbState('speaking');
+          return;
+        }
       }
       setOrbState('');
       if (srSupported) { shouldListen = true; setTimeout(startListening, 400); }
     })
     .catch(function (err) {
       isThinking = false;
+      ttsFinished = true;
       typing.parentNode && typing.parentNode.removeChild(typing);
       botRow('Sorry, something went wrong. Please call us at 540-533-3821.');
       if (sendBtn) sendBtn.disabled = false;
@@ -480,6 +575,23 @@
       if (srSupported && voiceOn) { shouldListen = true; setTimeout(startListening, 600); }
       console.error('[IC Guide]', err);
     });
+  }
+
+  // ── Speak the greeting ────────────────────────────────────────────────────
+
+  function speakGreeting() {
+    if (!voiceOn) { shouldListen = true; setTimeout(startListening, 400); return; }
+    resetTTSQueue();
+    sentenceBuf = '';
+    ttsFinished = false;
+    setOrbState('speaking');
+    // Split greeting into sentences manually for immediate start
+    var sentences = GREETING_TEXT.match(SENTENCE_RE) || [GREETING_TEXT];
+    for (var i = 0; i < sentences.length; i++) {
+      var s = sentences[i].trim();
+      if (s) enqueueSentence(s);
+    }
+    ttsFinished = true;
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────
@@ -495,53 +607,38 @@
     var micBtn    = document.getElementById('ic-mic');
     var volBtn    = document.getElementById('ic-vol');
 
-    // Open / close panel
     launchBtn.addEventListener('click', function () {
       var opening = !panel.classList.contains('open');
       panel.classList.toggle('open', opening);
       launchBtn.classList.toggle('open', opening);
 
       if (opening) {
-        // Speak the greeting the first time; on subsequent opens just resume listening
         if (!greetingDone) {
           greetingDone = true;
-          setTimeout(function () {
-            if (voiceOn) {
-              speakText(GREETING_TEXT);
-            } else {
-              shouldListen = true;
-              setTimeout(startListening, 400);
-            }
-          }, 400);
-        } else if (srSupported && voiceOn && !isThinking && !isSpeaking) {
+          setTimeout(speakGreeting, 500);
+        } else if (srSupported && voiceOn && !isThinking) {
           shouldListen = true;
-          setTimeout(startListening, 500);
+          setTimeout(startListening, 400);
         }
       } else {
         stopListening();
-        stopSpeech();
+        resetTTSQueue();
         setOrbState('');
       }
     });
 
-    // Manual mic button
     if (micBtn) {
       micBtn.addEventListener('click', function () {
-        if (isListening) {
-          stopListening();
-        } else {
-          shouldListen = true;
-          startListening();
-        }
+        if (isListening) { stopListening(); }
+        else { shouldListen = true; startListening(); }
       });
     }
 
-    // Text send
     function sendTyped() {
       var text = input.value.trim();
       if (!text || isThinking) return;
       stopListening();
-      stopSpeech();
+      resetTTSQueue();
       input.value = '';
       input.style.height = 'auto';
       sendMessage(text);
@@ -555,12 +652,11 @@
       input.style.height = Math.min(input.scrollHeight, 90) + 'px';
     });
 
-    // Voice toggle
     volBtn.addEventListener('click', function () {
       voiceOn = !voiceOn;
       volBtn.classList.toggle('on', voiceOn);
       volBtn.innerHTML = voiceOn ? SVG.speakerOn : SVG.speakerOff;
-      if (!voiceOn) { stopSpeech(); stopListening(); setOrbState(''); }
+      if (!voiceOn) { resetTTSQueue(); stopListening(); setOrbState(''); }
       else if (srSupported && panel.classList.contains('open') && !isThinking) {
         shouldListen = true; setTimeout(startListening, 300);
       }

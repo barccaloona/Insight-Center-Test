@@ -1,11 +1,8 @@
-// Insight Center Guide — Vapi-powered voice widget
-// Zero dependencies beyond the Vapi SDK (loaded dynamically from CDN).
+// Insight Center Guide — chat-first widget with voice mode
+// Zero dependencies. Drop <script src="/chat-widget.js" defer></script> before </body>.
 
 (function () {
   'use strict';
-
-  var PUBLIC_KEY   = 'e0b00bab-79db-4617-9f3c-f8a21c1d6962';
-  var ASSISTANT_ID = '57a1c95f-59ad-4589-afa1-6f0799f0d2e6';
 
   var TEAL     = '#24594E';
   var MINT     = '#3EA882';
@@ -13,16 +10,20 @@
 
   var GREETING = "Hi, I'm the Insight Center Guide. Ask me anything about our services, team, or approach to cognitive development.";
 
-  var vapi         = null;
-  var vapiReady    = false;
-  var callActive   = false;
-  var voiceMode    = false;
+  // Latency tuning
+  var PAUSE_MS           = 650;  // silence before sending
+  var INTERRUPT_PAUSE_MS = 800;  // pause after interrupting agent speech
+  var FIRST_FLUSH_CHARS  = 48;   // flush first TTS chunk early so audio starts fast
+
+  var history      = [];
+  var voiceMode    = false; // are we in voice mode (orb view, mic running)?
+  var voiceOn      = true;  // mute toggle within voice mode
   var greetingDone = false;
-  var botBubble    = null; // streaming assistant transcript bubble
-  var chatHistory  = [];   // for text-mode fallback
+  var warmed       = false;
+  var srSupported  = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   // ── State ─────────────────────────────────────────────────────────────────
-  // 'idle' | 'connecting' | 'listening' | 'speaking'
+  // 'idle' | 'listening' | 'thinking' | 'speaking'
   var state = 'idle';
 
   function setState(s) {
@@ -30,199 +31,214 @@
     var orbWrap = document.getElementById('ic-orb-wrap');
     var wave    = document.getElementById('ic-wave');
     var label   = document.getElementById('ic-orb-label');
-    // map 'connecting' to 'thinking' for the orb animation
-    var orbCls  = s === 'idle' ? '' : s === 'connecting' ? 'thinking' : s;
-    if (orbWrap) orbWrap.className = orbCls;
+    if (orbWrap) orbWrap.className = (s === 'idle' ? '' : s);
     if (wave)    wave.classList.toggle('active', s === 'listening' || s === 'speaking');
     if (label && s !== 'listening') {
-      label.textContent = {
-        connecting: 'Connecting…',
-        speaking:   'Speaking…',
-      }[s] || 'Insight Center Guide';
+      label.textContent = { thinking: 'Thinking…', speaking: 'Speaking…' }[s] || 'Insight Center Guide';
       label.classList.remove('interim');
     }
   }
 
-  function setLabel(text, interim) {
-    var el = document.getElementById('ic-orb-label');
-    if (!el) return;
-    el.textContent = text || 'Insight Center Guide';
-    el.classList.toggle('interim', !!interim);
+  // ── Markdown (bot bubbles) ────────────────────────────────────────────────
+  // Minimal renderer: bold, italics, inline code, links, bullet/numbered
+  // lists, paragraphs. Input is escaped first, so only our own tags survive.
+
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  // ── Vapi SDK ──────────────────────────────────────────────────────────────
-
-  function loadVapi() {
-    return import('https://esm.sh/@vapi-ai/web').then(function (m) {
-      var VapiClass = m.default;
-      vapi = new VapiClass(PUBLIC_KEY);
-      vapiReady = true;
-      bindVapiEvents();
-    });
+  function mdInline(s) {
+    return s
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*\s][^*]*)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   }
 
-  function bindVapiEvents() {
-    vapi.on('call-start', function () {
-      callActive = true;
-      setState('listening');
-      setLabel('Listening…');
-    });
-
-    vapi.on('call-end', function () {
-      callActive = false;
-      botBubble  = null;
-      if (voiceMode) setState('idle');
-    });
-
-    vapi.on('speech-start', function () {
-      // Agent starts speaking
-      setState('speaking');
-      botBubble = botRow('');
-    });
-
-    vapi.on('speech-end', function () {
-      // Agent finished speaking — go back to listening
-      botBubble = null;
-      setState('listening');
-      setLabel('Listening…');
-    });
-
-    vapi.on('message', function (msg) {
-      if (!msg) return;
-      var t = document.getElementById('ic-transcript');
-      if (!t) return;
-
-      if (msg.type === 'transcript') {
-        if (msg.role === 'user') {
-          if (msg.transcriptType === 'final' && msg.transcript && msg.transcript.trim()) {
-            userRow(msg.transcript.trim());
-            setLabel('');
-          } else if (msg.transcriptType === 'partial' && msg.transcript) {
-            setLabel(msg.transcript, true);
-          }
-        } else if (msg.role === 'assistant' && msg.transcript) {
-          if (botBubble) {
-            botBubble.textContent = msg.transcript;
-            t.scrollTop = t.scrollHeight;
-          }
-        }
+  function renderMd(md) {
+    var lines = escHtml(md).split('\n');
+    var html = '', inUl = false, inOl = false, para = [];
+    function flushPara() {
+      if (para.length) { html += '<p>' + mdInline(para.join('<br>')) + '</p>'; para = []; }
+    }
+    function closeLists() {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (inOl) { html += '</ol>'; inOl = false; }
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var l  = lines[i];
+      var ul = l.match(/^\s*[-*]\s+(.*)/);
+      var ol = l.match(/^\s*\d+[.)]\s+(.*)/);
+      if (ul) {
+        flushPara();
+        if (inOl) { html += '</ol>'; inOl = false; }
+        if (!inUl) { html += '<ul>'; inUl = true; }
+        html += '<li>' + mdInline(ul[1]) + '</li>';
+      } else if (ol) {
+        flushPara();
+        if (inUl) { html += '</ul>'; inUl = false; }
+        if (!inOl) { html += '<ol>'; inOl = true; }
+        html += '<li>' + mdInline(ol[1]) + '</li>';
+      } else if (!l.trim()) {
+        flushPara(); closeLists();
+      } else {
+        closeLists(); para.push(l);
       }
-    });
+    }
+    flushPara(); closeLists();
+    return html;
+  }
 
-    vapi.on('error', function (err) {
-      console.error('[IC Vapi]', err);
-      callActive = false;
-      botBubble  = null;
-      if (voiceMode) {
-        setState('idle');
-        botRow('Connection error — please try again or type your question below.');
+  // Strip markdown so TTS never reads asterisks or link syntax aloud.
+  function stripMd(s) {
+    return s
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/^\s*[-*]\s+/gm, '');
+  }
+
+  // ── Warmup (avoid serverless cold-start lag on first message) ─────────────
+
+  function warm() {
+    if (warmed) return;
+    warmed = true;
+    try {
+      fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ warmup: true }) }).catch(function () {});
+      fetch('/api/tts',  { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ warmup: true }) }).catch(function () {});
+    } catch (_) {}
+  }
+
+  // ── TTS audio queue ────────────────────────────────────────────────────────
+  // Each queue item resolves to {url} (ElevenLabs blob), {speak} (browser-voice
+  // fallback text), or null (skip).
+  var audioQueue   = [];
+  var audioPlaying = false;
+  var streamDone   = false; // true when no more TTS chunks will arrive
+  var curAudio     = null;
+  var playGen      = 0;    // incremented on reset to invalidate stale callbacks
+
+  function resetAudio() {
+    playGen++;
+    streamDone   = false;
+    audioQueue   = [];
+    audioPlaying = false;
+    ttsBuffer    = '';
+    if (curAudio) { curAudio.pause(); curAudio = null; }
+    if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (_) {} }
+  }
+
+  function onAudioDone() {
+    audioPlaying = false;
+    curAudio     = null;
+    if (audioQueue.length > 0) {
+      playNext();
+    } else if (streamDone) {
+      // All audio finished — resume listening if still in voice mode
+      setState('idle');
+      if (voiceMode && srSupported) {
+        clearTimeout(sendTimer);
+        sendTimer = null;
+        pendingFinal = '';
+        setTimeout(startRec, 300);
       }
-    });
-  }
-
-  // ── Voice mode ────────────────────────────────────────────────────────────
-
-  function enterVoice() {
-    if (voiceMode) return;
-    voiceMode = true;
-    var panel = document.getElementById('ic-panel');
-    if (panel) panel.classList.add('voice');
-    setState('connecting');
-
-    function startCall() {
-      vapi.start(ASSISTANT_ID).catch(function (err) {
-        console.error('[IC] vapi.start failed', err);
-        exitVoice();
-      });
-    }
-
-    if (vapiReady) {
-      startCall();
-    } else {
-      loadVapi().then(startCall).catch(function () {
-        exitVoice();
-        botRow('Could not start voice. You can type your question below.');
-      });
     }
   }
 
-  function exitVoice() {
-    voiceMode = false;
-    if (callActive && vapi) { try { vapi.stop(); } catch (_) {} }
-    callActive = false;
-    botBubble  = null;
-    setState('idle');
-    var panel = document.getElementById('ic-panel');
-    if (panel) panel.classList.remove('voice');
-    var input = document.getElementById('ic-in');
-    if (input) setTimeout(function () { input.focus(); }, 100);
+  function playNext() {
+    if (audioPlaying || audioQueue.length === 0) return;
+    audioPlaying = true;
+    setState('speaking');
+    var p   = audioQueue.shift();
+    var gen = playGen;
+    p.then(function (res) {
+      if (gen !== playGen) { if (res && res.url) URL.revokeObjectURL(res.url); return; }
+      if (!res) { onAudioDone(); return; }
+      if (res.url) {
+        curAudio = new Audio(res.url);
+        curAudio.onended = function () { URL.revokeObjectURL(res.url); onAudioDone(); };
+        curAudio.onerror = function () { URL.revokeObjectURL(res.url); onAudioDone(); };
+        curAudio.play().catch(onAudioDone);
+      } else if (res.speak && window.speechSynthesis) {
+        // Browser-voice fallback when /api/tts isn't configured
+        var u = new SpeechSynthesisUtterance(res.speak);
+        u.rate = 1.02;
+        u.onend = u.onerror = function () { if (gen === playGen) onAudioDone(); };
+        try { speechSynthesis.speak(u); } catch (_) { onAudioDone(); }
+      } else {
+        onAudioDone();
+      }
+    }).catch(function () { if (gen === playGen) onAudioDone(); });
   }
 
-  // ── Text-mode fallback (/api/chat, no TTS) ────────────────────────────────
-
-  function sendTyped() {
-    var input   = document.getElementById('ic-in');
-    var sendBtn = document.getElementById('ic-send');
-    var text    = input ? input.value.trim() : '';
-    if (!text) return;
-    input.value = ''; input.style.height = 'auto';
-
-    // If a Vapi call is live, inject the text into it
-    if (callActive && vapi) {
-      userRow(text);
-      try { vapi.send({ type: 'add-message', message: { role: 'user', content: text } }); } catch (_) {}
-      return;
-    }
-
-    // Text-only mode — stream via /api/chat
-    chatHistory.push({ role: 'user', content: text });
-    userRow(text);
-    if (sendBtn) sendBtn.disabled = true;
-
-    var typing = typingRow();
-    var bubble = null;
-    var full   = '';
-
-    fetch('/api/chat', {
+  function enqueueTTS(text) {
+    text = stripMd(text);
+    if (!text.trim() || !voiceMode || !voiceOn) return;
+    firstChunkSent = true;
+    var clean = text.trim();
+    var p = fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory }),
-    }).then(function (resp) {
-      if (!resp.ok) throw new Error('chat ' + resp.status);
-      var reader = resp.body.getReader();
-      var dec = new TextDecoder();
-      var buf = '';
-      function pump() {
-        return reader.read().then(function (chunk) {
-          if (chunk.done) return;
-          buf += dec.decode(chunk.value, { stream: true });
-          var lines = buf.split('\n'); buf = lines.pop();
-          for (var i = 0; i < lines.length; i++) {
-            if (lines[i].indexOf('data: ') !== 0) continue;
-            var raw = lines[i].slice(6).trim();
-            if (raw === '[DONE]') continue;
-            try {
-              var p = JSON.parse(raw);
-              if (p.text) {
-                if (!bubble) { typing.parentNode && typing.parentNode.removeChild(typing); bubble = botRow(''); }
-                full += p.text; bubble.textContent = full;
-                var t = document.getElementById('ic-transcript');
-                if (t) t.scrollTop = t.scrollHeight;
-              }
-            } catch (_) {}
-          }
-          return pump();
-        });
-      }
-      return pump();
-    }).then(function () {
-      if (full) chatHistory.push({ role: 'assistant', content: full });
-      if (sendBtn) sendBtn.disabled = false;
+      body: JSON.stringify({ text: clean }),
+    }).then(function (r) {
+      if (!r.ok) throw new Error('tts');
+      return r.blob();
+    }).then(function (b) {
+      return { url: URL.createObjectURL(b) };
     }).catch(function () {
-      typing.parentNode && typing.parentNode.removeChild(typing);
-      botRow('Sorry, something went wrong. Please call us at 540-533-3821.');
-      if (sendBtn) sendBtn.disabled = false;
+      // ElevenLabs unavailable — fall back to the browser's built-in voice
+      return window.speechSynthesis ? { speak: clean } : null;
     });
+    audioQueue.push(p);
+    playNext();
+  }
+
+  // ── Sentence / clause buffer ───────────────────────────────────────────────
+  // First chunk is flushed aggressively (clause or ~48 chars) so audio starts
+  // as soon as possible. After that, flush on sentence endings, commas after
+  // 60+ chars, or a hard cap at 120 chars.
+
+  var ttsBuffer      = '';
+  var firstChunkSent = false;
+
+  function flushTTS(force) {
+    while (true) {
+      // Sentence boundary — always flush
+      var m = ttsBuffer.match(/^(.*?[.!?]+)\s/);
+      if (m) { enqueueTTS(m[1]); ttsBuffer = ttsBuffer.slice(m[0].length); continue; }
+
+      if (!firstChunkSent) {
+        // Aggressive first flush: clause boundary after 15+ chars
+        var fi = ttsBuffer.search(/[,;:]\s/);
+        if (fi >= 15) { enqueueTTS(ttsBuffer.slice(0, fi + 1)); ttsBuffer = ttsBuffer.slice(fi + 2); continue; }
+        // Or word boundary near FIRST_FLUSH_CHARS
+        if (ttsBuffer.length >= FIRST_FLUSH_CHARS) {
+          var fw = ttsBuffer.lastIndexOf(' ', FIRST_FLUSH_CHARS);
+          if (fw > 20) { enqueueTTS(ttsBuffer.slice(0, fw)); ttsBuffer = ttsBuffer.slice(fw + 1); continue; }
+        }
+      } else {
+        // Comma/semicolon boundary after 60+ chars
+        if (ttsBuffer.length >= 60) {
+          var ci = ttsBuffer.search(/[,;]\s/);
+          if (ci > 20) { enqueueTTS(ttsBuffer.slice(0, ci + 1)); ttsBuffer = ttsBuffer.slice(ci + 2); continue; }
+        }
+        // Hard cap: flush at word boundary around 120 chars
+        if (ttsBuffer.length >= 120) {
+          var si = ttsBuffer.lastIndexOf(' ', 120);
+          if (si > 40) { enqueueTTS(ttsBuffer.slice(0, si)); ttsBuffer = ttsBuffer.slice(si + 1); continue; }
+        }
+      }
+
+      break;
+    }
+
+    if (force && ttsBuffer.trim()) {
+      enqueueTTS(ttsBuffer);
+      ttsBuffer = '';
+    }
   }
 
   // ── SVGs ──────────────────────────────────────────────────────────────────
@@ -269,6 +285,7 @@
     '#ic-panel.voice #ic-vol{display:flex}',
     '#ic-vol:hover{color:#fff}#ic-vol.on{color:#8ED3AE}',
 
+    // Orb area — hidden in chat mode, shown in voice mode
     '#ic-orb-area{background:' + OFFWHITE + ';padding:28px 0 20px;display:none;flex-direction:column;align-items:center;gap:14px;flex-shrink:0}',
     '#ic-panel.voice #ic-orb-area{display:flex}',
     '#ic-orb-wrap{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center}',
@@ -305,6 +322,7 @@
     '#ic-wave span:nth-child(7){animation-delay:.25s}',
     '@keyframes ic-bar{0%,100%{height:4px}50%{height:18px}}',
 
+    // Transcript — tall in chat mode, compact in voice mode
     '#ic-transcript{max-height:320px;min-height:120px;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;',
     'gap:8px;background:#fff;scroll-behavior:smooth}',
     '#ic-panel.voice #ic-transcript{max-height:150px;min-height:0;border-top:1px solid rgba(36,89,78,.07)}',
@@ -315,11 +333,23 @@
     '.ic-bbl{max-width:82%;padding:7px 11px;border-radius:12px;font-family:"Outfit",sans-serif;font-size:13px;line-height:1.5;color:#1a2e28}',
     '.ic-row.bot .ic-bbl{background:' + OFFWHITE + ';border-bottom-left-radius:3px}',
     '.ic-row.user .ic-bbl{background:' + TEAL + ';color:#fff;border-bottom-right-radius:3px}',
+
+    // Markdown inside bot bubbles
+    '.ic-bbl p{margin:0 0 8px}.ic-bbl p:last-child{margin-bottom:0}',
+    '.ic-bbl ul,.ic-bbl ol{margin:4px 0 8px;padding-left:18px}',
+    '.ic-bbl ul{list-style:disc}.ic-bbl ol{list-style:decimal}',
+    '.ic-bbl ul:last-child,.ic-bbl ol:last-child{margin-bottom:0}',
+    '.ic-bbl li{margin:2px 0}',
+    '.ic-bbl code{background:rgba(36,89,78,.08);border-radius:4px;padding:1px 4px;font-size:12px;font-family:ui-monospace,Menlo,monospace}',
+    '.ic-bbl a{color:' + MINT + ';font-weight:500;text-decoration:underline;text-underline-offset:2px}',
+    '.ic-bbl strong{color:' + TEAL + '}',
+
     '.ic-dots{display:flex;gap:4px;padding:3px 0}',
     '.ic-dots span{width:5px;height:5px;border-radius:50%;background:' + MINT + ';animation:ic-bounce 1.1s infinite}',
     '.ic-dots span:nth-child(2){animation-delay:.18s}.ic-dots span:nth-child(3){animation-delay:.36s}',
     '@keyframes ic-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}',
 
+    // Chat input bar (hidden in voice mode)
     '#ic-bar{padding:10px 12px;background:#fff;border-top:1px solid rgba(36,89,78,.09);display:flex;gap:8px;align-items:center;flex-shrink:0}',
     '#ic-panel.voice #ic-bar{display:none}',
     '#ic-in{flex:1;border:1.5px solid #dde8e5;border-radius:10px;padding:8px 11px;font-family:"Outfit",sans-serif;font-size:13px;',
@@ -330,6 +360,7 @@
     '#ic-send:hover{background:#1c4a41}#ic-send:active{transform:scale(.9)}',
     '#ic-send:disabled{background:#c5d5d2;cursor:not-allowed;transform:none}',
 
+    // Voice mode entry button — orb-gradient circle in the chat bar
     '#ic-voicebtn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;',
     'background:radial-gradient(circle at 38% 35%,' + MINT + ',' + TEAL + ');color:#fff;',
     'display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(36,89,78,.3);',
@@ -337,6 +368,7 @@
     '#ic-voicebtn:hover{transform:scale(1.08);box-shadow:0 3px 14px rgba(36,89,78,.4)}',
     '#ic-voicebtn:active{transform:scale(.92)}',
 
+    // Voice mode bottom bar (exit back to typing)
     '#ic-voicebar{display:none;padding:10px 12px;background:#fff;border-top:1px solid rgba(36,89,78,.09);justify-content:center;flex-shrink:0}',
     '#ic-panel.voice #ic-voicebar{display:flex}',
     '#ic-endvoice{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:20px;border:1.5px solid #dde8e5;',
@@ -381,7 +413,7 @@
         '<div id="ic-bar">' +
           '<textarea id="ic-in" placeholder="Type your question…" rows="1" aria-label="Type your question"></textarea>' +
           '<button id="ic-send" aria-label="Send">' + SVG.send + '</button>' +
-          '<button id="ic-voicebtn" aria-label="Switch to voice" title="Talk to the Guide">' + SVG.mic + '</button>' +
+          (srSupported ? '<button id="ic-voicebtn" aria-label="Start voice mode" title="Talk to the Guide">' + SVG.mic + '</button>' : '') +
         '</div>' +
         '<div id="ic-voicebar">' +
           '<button id="ic-endvoice">' + SVG.keys + '<span>Type instead</span></button>' +
@@ -390,7 +422,7 @@
     document.body.appendChild(wrap);
   }
 
-  // ── Transcript helpers ────────────────────────────────────────────────────
+  // ── Transcript ────────────────────────────────────────────────────────────
 
   function botRow(text) {
     var t = document.getElementById('ic-transcript');
@@ -421,10 +453,225 @@
     return row;
   }
 
+  // ── Speech recognition ────────────────────────────────────────────────────
+  // Mic runs continuously while voice mode is active.
+  // During speaking: any substantial speech interrupts the agent.
+  // During listening: interim display + send-on-pause.
+
+  var rec          = null;
+  var recRunning   = false;
+  var pendingFinal = '';
+  var sendTimer    = null;
+
+  function setupRecognition() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    rec = new SR();
+    rec.continuous     = true;
+    rec.interimResults = true;
+    rec.lang           = 'en-US';
+
+    rec.addEventListener('start', function () {
+      recRunning = true;
+      if (state !== 'speaking' && state !== 'thinking') {
+        setState('listening');
+        setLabel('Listening…');
+      }
+    });
+
+    rec.addEventListener('end', function () {
+      recRunning = false;
+      // Restart only while voice mode is active and we're not mid-response
+      if (voiceMode && state !== 'thinking') {
+        setTimeout(startRec, 250);
+      }
+    });
+
+    rec.addEventListener('result', function (e) {
+      var interim  = '';
+      var newFinal = '';
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) newFinal += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      if (newFinal) pendingFinal += newFinal;
+
+      var display = (pendingFinal + interim).trim();
+
+      if (state === 'speaking') {
+        // Interrupt: stop audio if user says anything substantial (3+ words)
+        if (display.split(/\s+/).length >= 3) {
+          resetAudio();
+          clearTimeout(sendTimer);
+          sendTimer = setTimeout(function () {
+            var toSend = pendingFinal.trim() || display;
+            if (!toSend) return;
+            pendingFinal = ''; clearTimeout(sendTimer);
+            stopRec();
+            sendMessage(toSend);
+          }, INTERRUPT_PAUSE_MS);
+          setState('listening');
+          setLabel(display, true);
+        }
+        return;
+      }
+
+      // Normal listening mode
+      if (display) setLabel(display, true);
+
+      clearTimeout(sendTimer);
+      if (pendingFinal.trim()) {
+        sendTimer = setTimeout(function () {
+          var toSend = pendingFinal.trim();
+          if (!toSend) return;
+          pendingFinal = ''; clearTimeout(sendTimer);
+          stopRec();
+          setLabel('');
+          sendMessage(toSend);
+        }, PAUSE_MS);
+      }
+    });
+
+    rec.addEventListener('error', function (e) {
+      recRunning = false;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        exitVoice();
+        botRow('I need microphone access for voice mode. You can keep typing here instead.');
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        setState('idle');
+      }
+    });
+  }
+
+  function startRec() {
+    if (!rec || recRunning || !voiceMode) return;
+    pendingFinal = '';
+    try { rec.start(); } catch (_) {}
+  }
+
+  function stopRec() {
+    if (rec && recRunning) { try { rec.stop(); } catch (_) {} }
+  }
+
+  function setLabel(text, interim) {
+    var el = document.getElementById('ic-orb-label');
+    if (!el) return;
+    el.textContent = text || 'Insight Center Guide';
+    el.classList.toggle('interim', !!interim);
+  }
+
+  // ── Voice mode enter / exit ───────────────────────────────────────────────
+
+  function enterVoice() {
+    if (voiceMode) return;
+    voiceMode = true;
+    warm();
+    var panel = document.getElementById('ic-panel');
+    panel.classList.add('voice');
+    setState('idle');
+    setLabel('Listening…');
+    startRec();
+  }
+
+  function exitVoice() {
+    voiceMode = false;
+    stopRec();
+    resetAudio();
+    clearTimeout(sendTimer);
+    var panel = document.getElementById('ic-panel');
+    panel.classList.remove('voice');
+    setState('idle');
+    var input = document.getElementById('ic-in');
+    if (input) input.focus();
+  }
+
+  // ── Send message / stream ─────────────────────────────────────────────────
+
+  function sendMessage(text) {
+    var sendBtn = document.getElementById('ic-send');
+    var t       = document.getElementById('ic-transcript');
+
+    history.push({ role: 'user', content: text });
+    userRow(text);
+    if (sendBtn) sendBtn.disabled = true;
+    setState('thinking');
+    resetAudio();
+    firstChunkSent = false;
+    streamDone = false;
+
+    var typing  = typingRow();
+    var bubble  = null;
+    var fullTxt = '';
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history }),
+    })
+    .then(function (resp) {
+      if (!resp.ok) return resp.json().catch(function () { return { error: 'Error ' + resp.status }; })
+        .then(function (e) { throw new Error(e.error); });
+      var reader = resp.body.getReader();
+      var dec = new TextDecoder();
+      var buf = '';
+      function pump() {
+        return reader.read().then(function (chunk) {
+          if (chunk.done) return;
+          buf += dec.decode(chunk.value, { stream: true });
+          var lines = buf.split('\n'); buf = lines.pop();
+          for (var i = 0; i < lines.length; i++) {
+            if (lines[i].indexOf('data: ') !== 0) continue;
+            var raw = lines[i].slice(6).trim();
+            if (raw === '[DONE]') continue;
+            try {
+              var p = JSON.parse(raw);
+              if (p.error) throw new Error(p.error);
+              if (p.text) {
+                if (!bubble) { typing.parentNode && typing.parentNode.removeChild(typing); bubble = botRow(''); }
+                fullTxt += p.text;
+                bubble.innerHTML = renderMd(fullTxt);
+                t.scrollTop = t.scrollHeight;
+                if (voiceMode && voiceOn) { ttsBuffer += p.text; flushTTS(false); }
+              }
+            } catch (_) {}
+          }
+          return pump();
+        });
+      }
+      return pump();
+    })
+    .then(function () {
+      if (sendBtn) sendBtn.disabled = false;
+      typing.parentNode && typing.parentNode.removeChild(typing);
+      if (fullTxt) history.push({ role: 'assistant', content: fullTxt });
+      if (voiceMode && voiceOn) {
+        flushTTS(true);
+        streamDone = true;
+        // If nothing queued or playing, go back to listening now
+        if (!audioPlaying && audioQueue.length === 0) {
+          setState('idle');
+          setTimeout(startRec, 300);
+        }
+      } else {
+        setState('idle');
+        if (voiceMode) setTimeout(startRec, 300);
+      }
+    })
+    .catch(function (err) {
+      if (sendBtn) sendBtn.disabled = false;
+      typing.parentNode && typing.parentNode.removeChild(typing);
+      botRow('Sorry, something went wrong. Please try again in a moment.');
+      setState('idle');
+      if (voiceMode) setTimeout(startRec, 600);
+      console.error('[IC Guide]', err);
+    });
+  }
+
   // ── Init ─────────────────────────────────────────────────────────────────
 
   function init() {
     buildDOM();
+    setupRecognition();
 
     var btn      = document.getElementById('ic-btn');
     var panel    = document.getElementById('ic-panel');
@@ -439,8 +686,12 @@
       panel.classList.toggle('open', opening);
       btn.classList.toggle('open', opening);
       if (opening) {
-        if (!greetingDone) { greetingDone = true; botRow(GREETING); }
-        setTimeout(function () { input.focus(); }, 350);
+        warm(); // spin up serverless functions so the first reply is fast
+        if (!greetingDone) {
+          greetingDone = true;
+          botRow(GREETING);
+        }
+        if (!voiceMode) setTimeout(function () { input.focus(); }, 350);
       } else {
         exitVoice();
       }
@@ -449,6 +700,13 @@
     if (voiceBtn) voiceBtn.addEventListener('click', enterVoice);
     if (endBtn)   endBtn.addEventListener('click', exitVoice);
 
+    function sendTyped() {
+      var text = input.value.trim();
+      if (!text || state === 'thinking') return;
+      resetAudio(); clearTimeout(sendTimer);
+      input.value = ''; input.style.height = 'auto';
+      sendMessage(text);
+    }
     sendBtn.addEventListener('click', sendTyped);
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTyped(); }
@@ -458,12 +716,11 @@
       input.style.height = Math.min(input.scrollHeight, 90) + 'px';
     });
 
-    var voiceOn = true;
     volBtn.addEventListener('click', function () {
       voiceOn = !voiceOn;
       volBtn.classList.toggle('on', voiceOn);
       volBtn.innerHTML = voiceOn ? SVG.volOn : SVG.volOff;
-      if (vapi && callActive) { try { vapi.setMuted(!voiceOn); } catch (_) {} }
+      if (!voiceOn) resetAudio();
     });
   }
 

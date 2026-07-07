@@ -86,13 +86,12 @@ export default async function handler(req, res) {
           allowed_domains: ['theinsightcenterorg.substack.com', 'theinsightcenter.org', 'www.theinsightcenter.org'],
         },
       ],
+      tool_choice: { type: 'tool', name: 'web_fetch' },
       messages,
     });
 
     for await (const event of stream) {
-      if (event.type === 'content_block_start' && event.content_block && /tool/.test(event.content_block.type)) {
-        res.write(`data: ${JSON.stringify({ debug: event.content_block })}\n\n`);
-      }
+      res.write(`data: ${JSON.stringify({ debug: event })}\n\n`);
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
         res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
       }

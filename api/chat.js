@@ -86,7 +86,6 @@ export default async function handler(req, res) {
           allowed_domains: ['theinsightcenterorg.substack.com', 'theinsightcenter.org', 'www.theinsightcenter.org'],
         },
       ],
-      tool_choice: { type: 'tool', name: 'web_fetch' },
       messages,
     });
 

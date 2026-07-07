@@ -98,8 +98,27 @@ export default async function handler(req, res) {
       messages,
     });
 
+    // Text blocks that precede a tool call (e.g. "I'll check the feed for
+    // you...") are narration, not the answer — only a text block with no
+    // further blocks after it is the real reply. Tell the client to discard
+    // anything shown so far whenever a non-text block follows a text block.
+    let curBlockType = null;
+    let curBlockHasText = false;
+
     for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      if (event.type === 'content_block_start') {
+        if (event.content_block.type === 'text') {
+          curBlockType = 'text';
+          curBlockHasText = false;
+        } else {
+          if (curBlockType === 'text' && curBlockHasText) {
+            res.write(`data: ${JSON.stringify({ reset: true })}\n\n`);
+          }
+          curBlockType = event.content_block.type;
+          curBlockHasText = false;
+        }
+      } else if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        curBlockHasText = true;
         res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
       }
     }

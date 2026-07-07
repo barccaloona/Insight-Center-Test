@@ -626,6 +626,16 @@
             try {
               var p = JSON.parse(raw);
               if (p.error) throw new Error(p.error);
+              if (p.reset) {
+                // Text shown so far was narration before a tool call, not the
+                // real answer (e.g. "let me check the feed…") — discard it.
+                if (bubble && bubble.closest('.ic-row')) bubble.closest('.ic-row').remove();
+                bubble = null;
+                fullTxt = '';
+                ttsBuffer = '';
+                typing = typingRow();
+                continue;
+              }
               if (p.text) {
                 if (!bubble) { typing.parentNode && typing.parentNode.removeChild(typing); bubble = botRow(''); }
                 fullTxt += p.text;

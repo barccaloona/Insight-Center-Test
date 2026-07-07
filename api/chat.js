@@ -57,10 +57,19 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured on this server.' });
   }
 
-  const { messages } = req.body || {};
-  if (!Array.isArray(messages) || messages.length === 0) {
+  const { messages: userMessages } = req.body || {};
+  if (!Array.isArray(userMessages) || userMessages.length === 0) {
     return res.status(400).json({ error: 'messages must be a non-empty array' });
   }
+
+  // web_fetch only fetches URLs already present in the conversation — a URL
+  // mentioned only in the system prompt doesn't count. Prime the actual
+  // messages array with it so the tool is allowed to use it.
+  const messages = [
+    { role: 'user', content: 'For reference, the Center\'s live blog feed is at https://theinsightcenterorg.substack.com/feed — use it if I ask about the blog or a recent essay.' },
+    { role: 'assistant', content: 'Got it — I\'ll check that feed if you ask about the blog.' },
+    ...userMessages,
+  ];
 
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
@@ -90,7 +99,6 @@ export default async function handler(req, res) {
     });
 
     for await (const event of stream) {
-      res.write(`data: ${JSON.stringify({ debug: event })}\n\n`);
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
         res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
       }

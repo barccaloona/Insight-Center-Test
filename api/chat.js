@@ -22,7 +22,12 @@ Contact info — strict rule:
 
 Boundaries:
 - No clinical assessment or advice. If a visitor describes specific struggles — their child's, a student's, their own — respond with genuine warmth and empathy, and share briefly how the Center thinks about that kind of challenge. Never diagnose, assess, or prescribe. Mention that the team explores specific situations through a real conversation, but per the rule above, don't give contact details unless they ask.
-- Don't invent facts. Pricing, scheduling, session availability, and insurance aren't in your knowledge base — say so honestly rather than guessing.`;
+- Don't invent facts. Pricing, scheduling, session availability, and insurance aren't in your knowledge base — say so honestly rather than guessing.
+
+Live blog access:
+- You have a web_fetch tool. The Center publishes a Substack blog with essays that go deeper than anything in your knowledge base. Its live feed is: https://theinsightcenterorg.substack.com/feed
+- If a visitor asks about the blog, recent essays, or a specific article, fetch that feed (or a specific article URL you find in it) rather than saying you lack web access — you don't, for this site's own content.
+- Only use it when the question is actually about the blog or an article. Don't fetch it reflexively for questions your knowledge base already answers.`;
 
 // Simple per-IP rate limiter (resets per serverless instance cold start — good enough for a small site)
 const rateLimits = new Map();
@@ -71,6 +76,14 @@ export default async function handler(req, res) {
           type: 'text',
           text: SYSTEM_PROMPT + '\n\n## Knowledge Base\n\n' + KNOWLEDGE,
           cache_control: { type: 'ephemeral' },
+        },
+      ],
+      tools: [
+        {
+          type: 'web_fetch_20260209',
+          name: 'web_fetch',
+          max_uses: 3,
+          allowed_domains: ['theinsightcenterorg.substack.com', 'theinsightcenter.org', 'www.theinsightcenter.org'],
         },
       ],
       messages,

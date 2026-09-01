@@ -82,7 +82,7 @@ Contact: Reach out to begin a discovery conversation — call 540-533-3821 or co
 
 ## Team
 
-### Roxanne Miller, PhD (cand.) — Educational Therapist
+### Roxanne Miller, PhD — Educational Therapist
 Roxanne Miller is an educational therapist dedicated to helping Pre-K–12 students reach their full cognitive potential, particularly those with learning challenges rooted in neurological, psychological, and cultural factors. She has received specialized training and holds certifications from both the Feuerstein Institute and the National Institute for Learning Development (NILD). Her work focuses on strengthening students' cognitive foundations by developing essential mental operations through mediated learning — an approach that supports both academic success and lifelong growth. As a mother of ten, including an adult daughter with Down syndrome, Roxanne brings both professional expertise and deep personal experience to her work. She is committed to helping every learner develop intellectually and personally.
 
 ### Carol Lynn Miller, PhD (cand.) — Philosopher and Presenter
